@@ -1,5 +1,5 @@
 // cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -S ./workshop1.1/ -B ./workshop1.1/
-#include "ball.hpp"
+#include "tank.hpp"
 #include <SFML/Graphics.hpp>
 
 constexpr int WINDOW_WIDTH = 800;

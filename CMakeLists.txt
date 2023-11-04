@@ -16,7 +16,16 @@ find_package(Freetype)
 find_package(JPEG)
 find_package(SFML 2.6 COMPONENTS window graphics system REQUIRED)
 
-add_executable(00 main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/include/tank.hpp ${CMAKE_CURRENT_SOURCE_DIR}/libs/tank.cpp)
+add_executable(
+    00 
+    main.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/world.hpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tank.hpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/bullet.hpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/world.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tank.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet.cpp
+)
 
 target_include_directories(00 PRIVATE "${SFML_ROOT}/include")
 target_compile_features(00 PUBLIC cxx_std_17)

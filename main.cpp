@@ -42,7 +42,9 @@ int main()
         sf::Style::Default,
         settings);
 
-    World world(WINDOW_WIDTH, WINDOW_HEIGHT);
+    sf::Clock clockStart;
+
+    World world(WINDOW_WIDTH, WINDOW_HEIGHT, clockStart);
 
     while (window.isOpen())
     {

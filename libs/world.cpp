@@ -1,18 +1,19 @@
-#include "world.hpp"
+#include "headers/world.hpp"
 
-World::World(int width, int height)
+World::World(int width, int height, sf::Clock& clockRef)
 {
+    clock = clockRef;
     widthWorld = float(width);
     heightWorld = float(height);
     initGenerator(generator);
-    user = new Tank(userTank, { float(width / 2), float(height - SIZE_TANK / 2) }, DIRECTIONS[UP]);
+    user = new Tank(userTank, { float(width / 2), float(height - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         sf::Vector2f position;
         position.x = getRandomFloat(SIZE_TANK / 2, widthWorld - SIZE_TANK / 2);
         position.y = getRandomFloat(SIZE_TANK / 2, heightWorld - SIZE_TANK / 2);
         int randomDirection = getRandomInt(0, 3);
-        enemis[i] = new Tank(enemyTank, position, DIRECTIONS[randomDirection]);
+        enemis[i] = new Tank(enemyTank, position, DIRECTIONS[randomDirection], clock);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
@@ -20,8 +21,10 @@ World::World(int width, int height)
         position.x = getRandomFloat(SIZE_TANK / 2, widthWorld - SIZE_TANK / 2);
         position.y = getRandomFloat(SIZE_TANK / 2, heightWorld - SIZE_TANK / 2);
         int randomDirection = getRandomInt(0, 3);
-        enemisAI[i] = new Tank(enemyTankAI, position, DIRECTIONS[randomDirection]);
+        enemisAI[i] = new Tank(enemyTankAI, position, DIRECTIONS[randomDirection], clock);
     }
+    for (int i = 0; i < MAX_BULLETS; i++)
+        bullets[i] = NULL;
 }
 
 void World::updateWorld()

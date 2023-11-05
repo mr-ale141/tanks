@@ -1,7 +1,8 @@
 #include "headers/bullet.hpp"
 
-Bullet::Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet)
+Bullet::Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet, sf::Clock& clockRef)
 {
+    clock = clockRef;
     isEnemy = isEnemyBullet;
     if (isEnemy)
     {
@@ -37,6 +38,7 @@ Bullet::Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isE
         std::cout << "Error: Unknow direction!!!\n";
     position = startPosition;
     bullet.setPosition(startPosition);
+    preTime = clock.getElapsedTime().asSeconds();
 }
 
 sf::Vector2f Bullet::getPosition()
@@ -56,6 +58,7 @@ void Bullet::updatePosition()
     float offset = BULLET_SPEED * deltaTime;
     position += direction * offset;
     bullet.setPosition(position);
+    preTime = currentTime;
 }
 
 void Bullet::draw(sf::RenderTarget& target, sf::RenderStates states) const

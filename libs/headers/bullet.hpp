@@ -8,12 +8,13 @@ static const int BULLET_SPEED = 100;
 class Bullet : public sf::Drawable
 {
 public:
-    Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet);
+    Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet, sf::Clock& clockRef);
     sf::Vector2f getPosition();
     sf::Vector2f getDirection();
     void updatePosition();
 
 private:
+    sf::Clock clock;
     sf::Texture bulletTexture;
     sf::Sprite bullet;
     sf::Vector2f position;

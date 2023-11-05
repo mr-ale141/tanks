@@ -10,15 +10,22 @@ const float SHOOT_SPEED_USER = 2.f;
 const float SHOOT_SPEED_ENEMY = 1 / 3;
 const float SHOOT_SPEED_ENEMY_AI = 1.f;
 const float SIZE_TANK = 40.f;
+enum typeTank
+{
+    userTank,
+    enemyTank,
+    enemyTankAI,
+};
 
 class Tank : public sf::Drawable
 {
 public:
-    Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirection);
+    Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirection, sf::Clock& clockRef);
     void updatePosition();
-    void Tank::setDirection(sf::Vector2f newDirection);
+    void setDirection(sf::Vector2f newDirection);
 
 private:
+    sf::Clock clock;
     sf::Texture tankTexture;
     sf::Sprite tank;
     sf::Vector2f position;

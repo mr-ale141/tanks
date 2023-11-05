@@ -1,7 +1,8 @@
 #include "headers/tank.hpp"
 
-Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirection)
+Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirection, sf::Clock& clockRef)
 {
+    clock = clockRef;
     switch (type)
     {
     case userTank:
@@ -67,6 +68,7 @@ void Tank::updatePosition()
     float offset = speed * deltaTime;
     position += direction * offset;
     tank.setPosition(position);
+    preTime = currentTime;
 }
 
 void Tank::setDirection(sf::Vector2f newDirection)

@@ -6,7 +6,6 @@
 #include <random>
 #include <vector>
 
-const sf::Clock clock;
 const int MAX_ENEMIS = 5;
 const int MAX_ENEMIS_AI = 1;
 const int MAX_BULLETS = 20;
@@ -23,17 +22,12 @@ enum directionEnum
     DOWN,
     LEFT
 };
-enum typeTank
-{
-    userTank,
-    enemyTank,
-    enemyTankAI,
-};
 
 class World : public sf::Drawable
 {
 public:
-    World(int width, int height);
+
+    World(int width, int height, sf::Clock& clockRef);
     void updateWorld();
 
 private:
@@ -42,12 +36,13 @@ private:
         std::mt19937 engine;
     };
     PRNG generator;
+    sf::Clock clock;
     float widthWorld;
     float heightWorld;
-    Tank* user;
-    Tank* enemis[MAX_ENEMIS];
-    Tank* enemisAI[MAX_ENEMIS_AI];
-    Bullet* bullets[MAX_BULLETS];
+    class Tank* user;
+    class Tank* enemis[MAX_ENEMIS];
+    class Tank* enemisAI[MAX_ENEMIS_AI];
+    class Bullet* bullets[MAX_BULLETS];
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void initGenerator(PRNG& generator);

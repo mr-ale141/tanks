@@ -51,7 +51,7 @@ Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirectio
     position = startPosition;
     tank.setPosition(startPosition);
 
-    size = tank.getGlobalBounds();
+    size = tank.getLocalBounds();
     tank.setOrigin({size.width / 2, size.height / 2});
 
     countHit = 0;

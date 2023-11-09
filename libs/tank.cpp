@@ -169,7 +169,8 @@ sf::IntRect Tank::getPositionInTexture()
 
 void Tank::updateFireTexture()
 {
-    if (!fireTexture.loadFromFile("./sprites/fire.png", getPositionInTexture()))
+    sf::IntRect positionInTexture = getPositionInTexture();
+    if (!fireTexture.loadFromFile("./sprites/fire.png", positionInTexture))
     {
         std::cout << "Error: I can't read texture \"./sprites/fire.png\"!!!\n";
         exit(1);
@@ -182,10 +183,12 @@ void Tank::updateFire()
     float dt = currTime - lastTimeUpdateFire;
     if (dt > STEP_UPDATE_FIRE)
     {
-        if (currColumnTextureFire++ > MAX_COLUNN_TEXTURE_FIRE)
+        if (++currColumnTextureFire > MAX_COLUNN_TEXTURE_FIRE)
+        {
             currColumnTextureFire = 0;
-        if (currRowTextureFire++ > MAX_ROW_TEXTURE_FIRE)
-            currRowTextureFire = 0;
+            if (++currRowTextureFire > MAX_ROW_TEXTURE_FIRE)
+                currRowTextureFire = 0;
+        }
         updateFireTexture();
         fire.setTexture(fireTexture);
         lastTimeUpdateFire = clock.getElapsedTime().asSeconds();

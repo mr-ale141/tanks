@@ -224,19 +224,40 @@ void World::update()
         if (bullets[i])
         {
             bullets[i]->update();
-            if (!bullets[i]->isEnemy)
+            if (isOutside(bullets[i]))
+            {
+                free(bullets[i]);
+                bullets[i] = NULL;
+            }
+            if (bullets[i] && !bullets[i]->isEnemy)
             {
                 for (int j = 0; j < MAX_ENEMIS; j++)
                 {
                     Tank* tankEnemy = enemis[j];
                     sf::Vector2f offset = tankEnemy->getPosition() - bullets[i]->getPosition();
-                    if (getModule(offset) < SIZE_TANK / 2) tankEnemy->destroy();
+                    if (getModule(offset) < SIZE_TANK / 2) 
+                    {
+                        tankEnemy->destroy();
+                        free(bullets[i]);
+                        bullets[i] = NULL;
+                        break;
+                    }
                 }
             }
-            if (isOutside(bullets[i]))
+            if (bullets[i] && !bullets[i]->isEnemy)
             {
-                free(bullets[i]);
-                bullets[i] = NULL;
+                for (int j = 0; j < MAX_ENEMIS_AI; j++)
+                {
+                    Tank* tankEnemy = enemisAI[j];
+                    sf::Vector2f offset = tankEnemy->getPosition() - bullets[i]->getPosition();
+                    if (getModule(offset) < SIZE_TANK / 2) 
+                    {
+                        tankEnemy->destroy();
+                        free(bullets[i]);
+                        bullets[i] = NULL;
+                        break;
+                    }
+                }
             }
         }
     }

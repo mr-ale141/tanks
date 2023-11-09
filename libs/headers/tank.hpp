@@ -16,7 +16,7 @@ const float SIZE_TANK = 40.f;
 const int MAX_ROW_TEXTURE_FIRE = 7;
 const int MAX_COLUNN_TEXTURE_FIRE = 15;
 const int SIZE_TEXTURE_FIRE = 64;
-const float STEP_UPDATE_FIRE = 0.2;
+const float STEP_UPDATE_FIRE = 0.001;
 
     enum typeTank {
         userTank,

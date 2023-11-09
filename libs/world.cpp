@@ -224,6 +224,15 @@ void World::update()
         if (bullets[i])
         {
             bullets[i]->update();
+            if (!bullets[i]->isEnemy)
+            {
+                for (int j = 0; j < MAX_ENEMIS; j++)
+                {
+                    Tank* tankEnemy = enemis[j];
+                    sf::Vector2f offset = tankEnemy->getPosition() - bullets[i]->getPosition();
+                    if (getModule(offset) < SIZE_TANK / 2) tankEnemy->destroy();
+                }
+            }
             if (isOutside(bullets[i]))
             {
                 free(bullets[i]);

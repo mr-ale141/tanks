@@ -13,13 +13,16 @@ const float SHOOT_SPEED_USER = 2.f;
 const float SHOOT_SPEED_ENEMY = 1 / 3;
 const float SHOOT_SPEED_ENEMY_AI = 1.f;
 const float SIZE_TANK = 40.f;
+const int MAX_ROW_TEXTURE_FIRE = 7;
+const int MAX_COLUNN_TEXTURE_FIRE = 15;
+const int SIZE_TEXTURE_FIRE = 64;
+const float STEP_UPDATE_FIRE = 0.2;
 
-enum typeTank
-{
-    userTank,
-    enemyTank,
-    enemyTankAI,
-};
+    enum typeTank {
+        userTank,
+        enemyTank,
+        enemyTankAI,
+    };
 
 class Tank : public sf::Drawable
 {
@@ -34,12 +37,14 @@ public:
     void drive();
     void stop();
     void update();
+    void destroy();
 
-private:
-    typeTank type;
+    private : typeTank type;
     sf::Clock clock;
     sf::Texture tankTexture;
+    sf::Texture fireTexture;
     sf::Sprite tank;
+    sf::Sprite fire;
     sf::Vector2f position;
     float speed;
     float shootSpeed;
@@ -47,10 +52,17 @@ private:
     int countHit;
     float preTime;
     float timeLastShoot;
+    bool isDamaged;
+    int currRowTextureFire;
+    int currColumnTextureFire;
+    float lastTimeUpdateFire;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void setTankParametrs(typeTank type);
     void setScaleTank();
     void setOriginCenter();
     void updatePosition();
+    void updateFire();
+    void updateFireTexture();
+    sf::IntRect getPositionInTexture();
 };

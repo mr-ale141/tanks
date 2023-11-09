@@ -11,6 +11,7 @@ Tank::Tank(typeTank startType, sf::Vector2f startPosition, sf::Vector2f startDir
     setPosition(startPosition);
     countHit = 0;
     timeLastShoot = 0.f;
+    isDamaged = false;
     setDirection(startDirection);
     preTime = clock.getElapsedTime().asSeconds();
 }
@@ -58,7 +59,13 @@ void Tank::setDirection(sf::Vector2f newDirection)
 
 void Tank::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    target.draw(tank, states);
+    if (isDamaged)
+    {
+        target.draw(tank, states);
+        target.draw(fire, states);
+    }
+    else
+        target.draw(tank, states);
 }
 
 void Tank::setTankParametrs(typeTank type)
@@ -97,6 +104,12 @@ void Tank::setTankParametrs(typeTank type)
         exit(1);
     }
     tank.setTexture(tankTexture);
+    if (!fireTexture.create(SIZE_TEXTURE_FIRE, SIZE_TEXTURE_FIRE))
+    {
+        std::cout << "Error: I can't create texture 'fire'!!!\n";
+        exit(1);
+    }
+    fire.setTexture(fireTexture);
 }
 
 void Tank::setScaleTank()
@@ -144,7 +157,58 @@ void Tank::shoot(World& world)
     }
 }
 
+sf::IntRect Tank::getPositionInTexture()
+{
+    return sf::IntRect(
+        currColumnTextureFire * SIZE_TEXTURE_FIRE,
+        currRowTextureFire * SIZE_TEXTURE_FIRE,
+        SIZE_TEXTURE_FIRE,
+        SIZE_TEXTURE_FIRE
+    );
+}
+
+void Tank::updateFireTexture()
+{
+    if (!fireTexture.loadFromFile("./sprites/fire.png", getPositionInTexture()))
+    {
+        std::cout << "Error: I can't read texture \"./sprites/fire.png\"!!!\n";
+        exit(1);
+    }
+}
+
+void Tank::updateFire()
+{
+    float currTime = clock.getElapsedTime().asSeconds();
+    float dt = currTime - lastTimeUpdateFire;
+    if (dt > STEP_UPDATE_FIRE)
+    {
+        if (currColumnTextureFire++ > MAX_COLUNN_TEXTURE_FIRE)
+            currColumnTextureFire = 0;
+        if (currRowTextureFire++ > MAX_ROW_TEXTURE_FIRE)
+            currRowTextureFire = 0;
+        updateFireTexture();
+        fire.setTexture(fireTexture);
+        lastTimeUpdateFire = clock.getElapsedTime().asSeconds();
+    }
+}
+
+void Tank::destroy()
+{
+    stop();
+    currColumnTextureFire = 0;
+    currRowTextureFire = 0;
+    updateFireTexture();
+    fire.setTexture(fireTexture);
+    fire.setPosition(position);
+    fire.setOrigin({ SIZE_TEXTURE_FIRE / 2, SIZE_TEXTURE_FIRE / 2});
+    lastTimeUpdateFire = clock.getElapsedTime().asSeconds();
+    isDamaged = true;
+}
+
 void Tank::update()
 {
-    updatePosition();
+    if (isDamaged)
+        updateFire();
+    else
+        updatePosition();
 }

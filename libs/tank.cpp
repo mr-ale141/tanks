@@ -1,8 +1,63 @@
 #include "headers/tank.hpp"
+#include "headers/world.hpp"
 
-Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirection, sf::Clock& clockRef)
+Tank::Tank(typeTank startType, sf::Vector2f startPosition, sf::Vector2f startDirection, sf::Clock& clockRef)
 {
     clock = clockRef;
+    type = startType;
+    setTankParametrs(type);
+    setScaleTank();
+    setOriginCenter();
+    setPosition(startPosition);
+    countHit = 0;
+    timeLastShoot = 0.f;
+    setDirection(startDirection);
+    preTime = clock.getElapsedTime().asSeconds();
+}
+
+void Tank::updatePosition()
+{
+    float currentTime = clock.getElapsedTime().asSeconds();
+    float deltaTime = currentTime - preTime;
+    float offset = speed * deltaTime;
+    sf::Vector2f newPosition = position + direction * offset;
+    setPosition(newPosition);
+    preTime = currentTime;
+}
+
+void Tank::setPosition(sf::Vector2f newPosition)
+{
+    position = newPosition;
+    tank.setPosition(newPosition);
+}
+
+sf::Vector2f Tank::getPosition()
+{
+    return position;
+}
+
+void Tank::setDirection(sf::Vector2f newDirection)
+{
+    direction = newDirection;
+    if (direction == DIRECTIONS[UP])
+        tank.setRotation(0.f);
+    else if (direction == DIRECTIONS[RIGHT])
+        tank.setRotation(90.f);
+    else if (direction == DIRECTIONS[DOWN])
+        tank.setRotation(180.f);
+    else if (direction == DIRECTIONS[LEFT])
+        tank.setRotation(270.f);
+    else
+        std::cout << "Error: Unknow direction!!!\n";
+}
+
+void Tank::draw(sf::RenderTarget& target, sf::RenderStates states) const
+{
+    target.draw(tank, states);
+}
+
+void Tank::setTankParametrs(typeTank type)
+{
     switch (type)
     {
     case userTank:
@@ -11,7 +66,7 @@ Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirectio
             std::cout << "Error: I can't read texture \"./sprites/user.png\"!!!\n";
             exit(1);
         }
-        speed = SPEED_USER;
+        speed = 0.f;
         shootSpeed = SHOOT_SPEED_USER;
         break;
     case enemyTank:
@@ -37,6 +92,10 @@ Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirectio
         exit(1);
     }
     tank.setTexture(tankTexture);
+}
+
+void Tank::setScaleTank()
+{
     sf::Vector2f targetSize;
     sf::FloatRect size = tank.getGlobalBounds();
     float ratio = size.width / size.height;
@@ -47,46 +106,36 @@ Tank::Tank(typeTank type, sf::Vector2f startPosition, sf::Vector2f startDirectio
     tank.setScale(
         targetSize.x / size.width,
         targetSize.y / size.height);
-
-    position = startPosition;
-    tank.setPosition(startPosition);
-
-    size = tank.getLocalBounds();
-    tank.setOrigin({size.width / 2, size.height / 2});
-
-    countHit = 0;
-
-    preTime = clock.getElapsedTime().asSeconds();
-
-    setDirection(startDirection);
 }
 
-void Tank::updatePosition()
+void Tank::setOriginCenter()
 {
-    float currentTime = clock.getElapsedTime().asSeconds();
-    float deltaTime = currentTime - preTime;
-    float offset = speed * deltaTime;
-    position += direction * offset;
-    tank.setPosition(position);
-    preTime = currentTime;
+    sf::FloatRect size = tank.getLocalBounds();
+    tank.setOrigin({ size.width / 2, size.height / 2 });
 }
 
-void Tank::setDirection(sf::Vector2f newDirection)
+float Tank::getSpeed()
 {
-    direction = newDirection;
-    if (direction == DIRECTIONS[UP])
-        tank.setRotation(0.f);
-    else if (direction == DIRECTIONS[RIGHT])
-        tank.setRotation(90.f);
-    else if (direction == DIRECTIONS[DOWN])
-        tank.setRotation(180.f);
-    else if (direction == DIRECTIONS[LEFT])
-        tank.setRotation(270.f);
-    else
-        std::cout << "Error: Unknow direction!!!\n";
+    return speed;
 }
 
-void Tank::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Tank::stop()
 {
-    target.draw(tank, states);
+    speed = 0.f;
+}
+
+void Tank::drive()
+{
+    speed = SPEED_USER;
+}
+
+void Tank::shoot(World& world)
+{
+    world.createBullet(position, direction, type != userTank);
+    timeLastShoot = clock.getElapsedTime().asSeconds();
+}
+
+void Tank::update()
+{
+    updatePosition();
 }

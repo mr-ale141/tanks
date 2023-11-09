@@ -1,10 +1,11 @@
 // cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -S ./workshop1.1/ -B ./workshop1.1/
 #include "libs/headers/world.hpp"
+#include "libs/headers/tank.hpp"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 800;
 
-void pollEvents(sf::RenderWindow& window)
+void pollEvents(sf::RenderWindow& window, World& world)
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -14,7 +15,11 @@ void pollEvents(sf::RenderWindow& window)
         case sf::Event::Closed:
             window.close();
             break;
+        case sf::Event::KeyPressed:
+            world.updateEvent(event.key, world);
+            break;
         default:
+            world.user->stop();
             break;
         }
     }
@@ -22,7 +27,7 @@ void pollEvents(sf::RenderWindow& window)
 
 void update(World& world)
 {
-    world.updateWorld();
+    world.update();
 }
 
 void redrawFrame(sf::RenderWindow& window, World& world)
@@ -48,7 +53,7 @@ int main()
 
     while (window.isOpen())
     {
-        pollEvents(window);
+        pollEvents(window, world);
         update(world);
         redrawFrame(window, world);
     }

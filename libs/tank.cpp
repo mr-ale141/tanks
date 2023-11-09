@@ -31,6 +31,11 @@ void Tank::setPosition(sf::Vector2f newPosition)
     tank.setPosition(newPosition);
 }
 
+sf::Vector2f Tank::getDirection()
+{
+    return direction;
+}
+
 sf::Vector2f Tank::getPosition()
 {
     return position;
@@ -131,8 +136,12 @@ void Tank::drive()
 
 void Tank::shoot(World& world)
 {
-    world.createBullet(position, direction, type != userTank);
-    timeLastShoot = clock.getElapsedTime().asSeconds();
+    float currTime = clock.getElapsedTime().asSeconds();
+    if (currTime - timeLastShoot > 1 / SHOOT_SPEED_USER)
+    {
+        world.createBullet(position, direction, type != userTank);
+        timeLastShoot = clock.getElapsedTime().asSeconds();
+    }
 }
 
 void Tank::update()

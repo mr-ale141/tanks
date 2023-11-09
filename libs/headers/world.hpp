@@ -39,7 +39,7 @@ public:
 
     World(int width, int height, sf::Clock& clockRef);
     void update();
-    void updateEvent(sf::Event::KeyEvent event, World& world);
+    void updateEvent();
     void createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet);
 
 private:
@@ -67,4 +67,6 @@ private:
     void createUser();
     void createEnemis();
     void createEnemisAI();
+    bool isOutside(Bullet* bullet);
+    void movTankOutside(Tank* tank);
 };

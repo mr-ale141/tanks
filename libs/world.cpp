@@ -154,53 +154,81 @@ void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 }
 
-void World::updateEvent(sf::Event::KeyEvent event, World& world)
+bool World::isOutside(Bullet* bullet)
 {
-    switch (event.code)
+    bool isOut = false;
+    if (bullet->getPosition().x < 0 || bullet->getPosition().y < 0)
+        isOut = true;
+    if (bullet->getPosition().x > widthWorld || bullet->getPosition().y > heightWorld)
+        isOut = true;
+    return isOut;
+}
+
+void World::movTankOutside(Tank* tank)
+{
+    sf::Vector2f position;
+    if ((position = tank->getPosition()).x < 0)
+        tank->setPosition({widthWorld, position.y});
+    if ((position = tank->getPosition()).x > widthWorld)
+        tank->setPosition({ 0, position.y });
+    if ((position = tank->getPosition()).y < 0)
+        tank->setPosition({ position.x, heightWorld });
+    if ((position = tank->getPosition()).y > heightWorld)
+        tank->setPosition({ position.x, 0 });
+}
+
+void World::updateEvent()
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
     {
-        case upCode:
-            if (!user->getSpeed()) user->drive();
-            user->setDirection(DIRECTIONS[UP]);
-            break;
-        case leftCode:
-            if (!user->getSpeed()) user->drive();
-            user->setDirection(DIRECTIONS[LEFT]);
-            break;
-        case rightCode:
-            if (!user->getSpeed()) user->drive();
-            user->setDirection(DIRECTIONS[RIGHT]);
-            break;
-        case downCode:
-            if (!user->getSpeed()) user->drive();
-            user->setDirection(DIRECTIONS[DOWN]);
-            break;
-        case spaceCode:
-            if (!user->getSpeed()) user->drive();
-            user->shoot(world);
-            break;
-        default:
-            break;
+        user->drive();
+        user->setDirection(DIRECTIONS[UP]);
     }
-    std::cout << "Code     : " << event.code << std::endl;
-    std::cout << "Scancode : " << event.scancode << std::endl;
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        user->drive();
+        user->setDirection(DIRECTIONS[LEFT]);
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        user->drive();
+        user->setDirection(DIRECTIONS[RIGHT]);
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        user->drive();
+        user->setDirection(DIRECTIONS[DOWN]);
+    }
+    else
+        user->stop();
 }
 
 void World::update()
 {
     user->update();
+    movTankOutside(user);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
             enemis[i]->update();
+        movTankOutside(enemis[i]);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
             enemisAI[i]->update();
+        movTankOutside(enemisAI[i]);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (bullets[i])
+        {
             bullets[i]->update();
+            if (isOutside(bullets[i]))
+            {
+                free(bullets[i]);
+                bullets[i] = NULL;
+            }
+        }
     }
 }

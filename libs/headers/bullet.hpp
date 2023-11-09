@@ -8,10 +8,15 @@ static const int BULLET_SPEED = 100;
 class Bullet : public sf::Drawable
 {
 public:
-    Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet, sf::Clock& clockRef);
+    Bullet(
+        sf::Vector2f startPosition,
+        sf::Vector2f startDirection,
+        bool isEnemyBullet,
+        sf::Clock& clockRef
+    );
     sf::Vector2f getPosition();
     sf::Vector2f getDirection();
-    void updatePosition();
+    void update();
 
 private:
     sf::Clock clock;
@@ -23,4 +28,9 @@ private:
     float preTime;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void updatePosition();
+    void setBulletParametrs(bool isEnemyBullet);
+    void setOriginUpCenter();
+    void setDirection(sf::Vector2f startDirection);
+    void setPosition(sf::Vector2f newPosition);
 };

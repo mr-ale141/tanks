@@ -1,6 +1,4 @@
 #pragma once
-#include "bullet.hpp"
-#include "tank.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <random>
@@ -9,12 +7,14 @@
 const int MAX_ENEMIS = 5;
 const int MAX_ENEMIS_AI = 1;
 const int MAX_BULLETS = 20;
+
 const sf::Vector2f DIRECTIONS[4] = {
     { 0.f, -1.f },
     { 1.f, 0.f },
     { 0.f, 1.f },
     { -1.f, 0.f }
 };
+
 enum directionEnum
 {
     UP,
@@ -23,23 +23,34 @@ enum directionEnum
     LEFT
 };
 
+enum keyEnum
+{
+    spaceCode = 57,
+    leftCode = 71,
+    rightCode = 72,
+    upCode = 73,
+    downCode = 74,
+};
+
 class World : public sf::Drawable
 {
 public:
+    class Tank* user;
 
     World(int width, int height, sf::Clock& clockRef);
-    void updateWorld();
+    void update();
+    void updateEvent(sf::Event::KeyEvent event, World& world);
+    void createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet);
 
 private:
     struct PRNG
     {
         std::mt19937 engine;
     };
-    PRNG generator;
-    sf::Clock clock;
     float widthWorld;
     float heightWorld;
-    class Tank* user;
+    PRNG generator;
+    sf::Clock clock;
     class Tank* enemis[MAX_ENEMIS];
     class Tank* enemisAI[MAX_ENEMIS_AI];
     class Bullet* bullets[MAX_BULLETS];
@@ -48,4 +59,12 @@ private:
     void initGenerator(PRNG& generator);
     float getRandomFloat(float minValue, float maxValue);
     unsigned getRandomInt(unsigned minValue, unsigned maxValue);
+    sf::Vector2f getFreePosition();
+    float getModule(sf::Vector2f vector);
+    void initEnemis();
+    void initEnemisAI();
+    void initBullets();
+    void createUser();
+    void createEnemis();
+    void createEnemisAI();
 };

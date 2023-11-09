@@ -16,10 +16,10 @@ void pollEvents(sf::RenderWindow& window, World& world)
             window.close();
             break;
         case sf::Event::KeyPressed:
-            world.updateEvent(event.key, world);
+            if (event.key.code == 57)
+                world.user->shoot(world);
             break;
         default:
-            world.user->stop();
             break;
         }
     }
@@ -27,6 +27,7 @@ void pollEvents(sf::RenderWindow& window, World& world)
 
 void update(World& world)
 {
+    world.updateEvent();
     world.update();
 }
 

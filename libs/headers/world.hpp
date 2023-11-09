@@ -23,15 +23,6 @@ enum directionEnum
     LEFT
 };
 
-enum keyEnum
-{
-    spaceCode = 57,
-    leftCode = 71,
-    rightCode = 72,
-    upCode = 73,
-    downCode = 74,
-};
-
 class World : public sf::Drawable
 {
 public:
@@ -39,7 +30,7 @@ public:
 
     World(int width, int height, sf::Clock& clockRef);
     void update();
-    void updateEvent(sf::Event::KeyEvent event, World& world);
+    void updateEvent();
     void createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet);
 
 private:
@@ -67,4 +58,6 @@ private:
     void createUser();
     void createEnemis();
     void createEnemisAI();
+    bool isOutside(Bullet* bullet);
+    void movTankOutside(Tank* tank);
 };

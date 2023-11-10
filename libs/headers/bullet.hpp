@@ -1,5 +1,4 @@
 #pragma once
-#include "world.hpp"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 

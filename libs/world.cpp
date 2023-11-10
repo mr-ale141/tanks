@@ -1,6 +1,7 @@
-#include "headers/world.hpp"
+#include "headers/fire.hpp"
 #include "headers/bullet.hpp"
 #include "headers/tank.hpp"
+#include "headers/world.hpp"
 
 World::World(int width, int height, sf::Clock& clockRef)
 {
@@ -9,15 +10,18 @@ World::World(int width, int height, sf::Clock& clockRef)
     heightWorld = float(height);
     initGenerator(generator);
     initBullets();
+    initEnemis();
     createUser();
     createEnemis();
     createEnemisAI();
+    createFire();
 }
 
 void World::initEnemis()
 {
     for (int i = 0; i < MAX_ENEMIS; ++i)
         enemis[i] = NULL;
+    initEnemisAI();
 }
 
 void World::initEnemisAI()
@@ -32,6 +36,15 @@ void World::initBullets()
         bullets[i] = NULL;
 }
 
+void World::initFire()
+{
+    fireUser = NULL;
+    for (int i = 0; i < MAX_ENEMIS; i++)
+        fireEnemis[i] = NULL;
+    for (int i = 0; i < MAX_ENEMIS_AI; i++)
+        fireEnemisAI[i] = NULL;
+}
+
 void World::createUser()
 {
     user = new Tank(userTank, { float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
@@ -39,7 +52,6 @@ void World::createUser()
 
 void World::createEnemis()
 {
-    initEnemis();
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         int randomDirection = getRandomInt(0, 3);
@@ -50,13 +62,22 @@ void World::createEnemis()
 
 void World::createEnemisAI()
 {
-    initEnemisAI();
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition();
         enemisAI[i] = new Tank(enemyTankAI, position, DIRECTIONS[randomDirection], clock);
     }
+}
+
+void World::createFire()
+{
+    initFire();
+    fireUser = new Fire(clock);
+    for (int i = 0; i < MAX_ENEMIS; i++)
+        fireEnemis[i] = new Fire(clock);
+    for (int i = 0; i < MAX_ENEMIS_AI; i++)
+        fireEnemisAI[i] = new Fire(clock);
 }
 
 void World::createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet)
@@ -137,15 +158,20 @@ unsigned World::getRandomInt(unsigned minValue, unsigned maxValue)
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(*user, states);
+    target.draw(*fireUser, states);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
             target.draw(*enemis[i], states);
+        if (fireEnemis[i])
+            target.draw(*fireEnemis[i], states);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
             target.draw(*enemisAI[i], states);
+        if (fireEnemisAI[i])
+            target.draw(*fireEnemisAI[i], states);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {
@@ -206,17 +232,22 @@ void World::updateEvent()
 void World::update()
 {
     user->update();
+    fireUser->update();
     movTankOutside(user);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
             enemis[i]->update();
+        if (fireEnemis[i])
+            fireEnemis[i]->update();
         movTankOutside(enemis[i]);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
             enemisAI[i]->update();
+        if (fireEnemisAI[i])
+            fireEnemisAI[i]->update();
         movTankOutside(enemisAI[i]);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -234,10 +265,12 @@ void World::update()
                 for (int j = 0; j < MAX_ENEMIS; j++)
                 {
                     Tank* tankEnemy = enemis[j];
-                    sf::Vector2f offset = tankEnemy->getPosition() - bullets[i]->getPosition();
+                    sf::Vector2f position = tankEnemy->getPosition();
+                    sf::Vector2f offset = position - bullets[i]->getPosition();
                     if (getModule(offset) < SIZE_TANK / 2) 
                     {
                         tankEnemy->destroy();
+                        fireEnemis[j]->show(position);
                         free(bullets[i]);
                         bullets[i] = NULL;
                         break;
@@ -249,10 +282,12 @@ void World::update()
                 for (int j = 0; j < MAX_ENEMIS_AI; j++)
                 {
                     Tank* tankEnemy = enemisAI[j];
-                    sf::Vector2f offset = tankEnemy->getPosition() - bullets[i]->getPosition();
+                    sf::Vector2f position = tankEnemy->getPosition();
+                    sf::Vector2f offset = position - bullets[i]->getPosition();
                     if (getModule(offset) < SIZE_TANK / 2) 
                     {
                         tankEnemy->destroy();
+                        fireEnemisAI[j]->show(position);
                         free(bullets[i]);
                         bullets[i] = NULL;
                         break;

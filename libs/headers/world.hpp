@@ -4,7 +4,7 @@
 #include <random>
 #include <vector>
 
-const int MAX_ENEMIS = 5;
+const int MAX_ENEMIS = 10;
 const int MAX_ENEMIS_AI = 5;
 const int MAX_BULLETS = 20;
 
@@ -54,9 +54,7 @@ private:
     class Tank* enemis[MAX_ENEMIS];
     class Tank* enemisAI[MAX_ENEMIS_AI];
     class Bullet* bullets[MAX_BULLETS];
-    class Fire* fireUser;
-    class Fire* fireEnemis[MAX_ENEMIS];
-    class Fire* fireEnemisAI[MAX_ENEMIS_AI];
+    class Fire* fire;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void initGenerator(PRNG& generator);
@@ -67,7 +65,6 @@ private:
     void initEnemis();
     void initEnemisAI();
     void initBullets();
-    void initFire();
     void createUser();
     void createEnemis();
     void createEnemisAI();

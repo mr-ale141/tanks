@@ -36,15 +36,6 @@ void World::initBullets()
         bullets[i] = NULL;
 }
 
-void World::initFire()
-{
-    fireUser = NULL;
-    for (int i = 0; i < MAX_ENEMIS; i++)
-        fireEnemis[i] = NULL;
-    for (int i = 0; i < MAX_ENEMIS_AI; i++)
-        fireEnemisAI[i] = NULL;
-}
-
 void World::createUser()
 {
     user = new Tank(userTank, { float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
@@ -72,12 +63,7 @@ void World::createEnemisAI()
 
 void World::createFire()
 {
-    initFire();
-    fireUser = new Fire(clock);
-    for (int i = 0; i < MAX_ENEMIS; i++)
-        fireEnemis[i] = new Fire(clock);
-    for (int i = 0; i < MAX_ENEMIS_AI; i++)
-        fireEnemisAI[i] = new Fire(clock);
+    fire = new Fire(clock);
 }
 
 void World::createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet)
@@ -158,26 +144,22 @@ unsigned World::getRandomInt(unsigned minValue, unsigned maxValue)
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(*user, states);
-    target.draw(*fireUser, states);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
             target.draw(*enemis[i], states);
-        if (fireEnemis[i])
-            target.draw(*fireEnemis[i], states);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
             target.draw(*enemisAI[i], states);
-        if (fireEnemisAI[i])
-            target.draw(*fireEnemisAI[i], states);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (bullets[i])
             target.draw(*bullets[i], states);
     }
+    target.draw(*fire, states);
 }
 
 bool World::isOutside(Bullet* bullet)
@@ -232,22 +214,18 @@ void World::updateEvent()
 void World::update()
 {
     user->update();
-    fireUser->update();
+    fire->update();
     movTankOutside(user);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
             enemis[i]->update();
-        if (fireEnemis[i])
-            fireEnemis[i]->update();
         movTankOutside(enemis[i]);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
             enemisAI[i]->update();
-        if (fireEnemisAI[i])
-            fireEnemisAI[i]->update();
         movTankOutside(enemisAI[i]);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -270,7 +248,7 @@ void World::update()
                     if (getModule(offset) < SIZE_TANK / 2) 
                     {
                         tankEnemy->destroy();
-                        fireEnemis[j]->show(position);
+                        fire->show(position);
                         free(bullets[i]);
                         bullets[i] = NULL;
                         break;
@@ -287,7 +265,7 @@ void World::update()
                     if (getModule(offset) < SIZE_TANK / 2) 
                     {
                         tankEnemy->destroy();
-                        fireEnemisAI[j]->show(position);
+                        fire->show(position);
                         free(bullets[i]);
                         bullets[i] = NULL;
                         break;

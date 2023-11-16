@@ -3,7 +3,7 @@
 #include "libs/headers/world.hpp"
 
 constexpr int WINDOW_WIDTH = 800;
-constexpr int WINDOW_HEIGHT = 800;
+constexpr int WINDOW_HEIGHT = 600;
 
 void pollEvents(sf::RenderWindow& window, World& world)
 {

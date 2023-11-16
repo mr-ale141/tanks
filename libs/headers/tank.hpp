@@ -37,7 +37,8 @@ public:
     void update();
     void destroy();
 
-private : typeTank type;
+private : 
+    typeTank type;
     sf::Clock clock;
     sf::Texture tankTexture;
     sf::Sprite tank;

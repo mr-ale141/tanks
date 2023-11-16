@@ -100,10 +100,10 @@ sf::Vector2f World::getFreePosition()
         position.y = getRandomFloat(SIZE_TANK / 2, World::heightWorld / 2 - SIZE_TANK / 2);
         if (getModule((user->getPosition() - position)) < SIZE_TANK) isBusyPosition = true;
         for (int i = 0; i < MAX_ENEMIS_AI; ++i)
-            if (enemisAI[i] != NULL && getModule((enemisAI[i]->getPosition() - position)) < SIZE_TANK)
+            if (enemisAI[i] != NULL && getModule((enemisAI[i]->getPosition() - position)) < 2 * SIZE_TANK)
                 isBusyPosition = true;
         for (int i = 0; i < MAX_ENEMIS; ++i)
-            if (enemis[i] != NULL && getModule((enemis[i]->getPosition() - position)) < SIZE_TANK)
+            if (enemis[i] != NULL && getModule((enemis[i]->getPosition() - position)) < 2 * SIZE_TANK)
                 isBusyPosition = true;
     } while (isBusyPosition && countTrying < MAX_TRYING);
     return position;
@@ -233,9 +233,10 @@ void World::update()
     movTankOutside(user);
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
-        if (enemis[i])
+        float currTime = clock.getElapsedTime().asSeconds();
+        if (enemis[i] && currTime > TIME_WAITING)
         {
-            float currTime = clock.getElapsedTime().asSeconds();
+            enemis[i]->drive();
             float dt = currTime - enemis[i]->preTimeUpdateDirection;
             if (dt > enemis[i]->stepRandomDirection)
             {
@@ -243,15 +244,16 @@ void World::update()
                 enemis[i]->setDirection(DIRECTIONS[randomDirection]);
                 enemis[i]->preTimeUpdateDirection = currTime;
             }
-            enemis[i]->update();
         }
+        enemis[i]->update();
         rotateTankСollision(enemis[i]);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
-        if (enemisAI[i])
+        float currTime = clock.getElapsedTime().asSeconds();
+        if (enemisAI[i] && currTime > TIME_WAITING)
         {
-            float currTime = clock.getElapsedTime().asSeconds();
+            enemisAI[i]->drive();
             float dt = currTime - enemisAI[i]->preTimeUpdateDirection;
             if (dt > enemisAI[i]->stepRandomDirection)
             {
@@ -259,8 +261,8 @@ void World::update()
                 enemisAI[i]->setDirection(DIRECTIONS[randomDirection]);
                 enemisAI[i]->preTimeUpdateDirection = currTime;
             }
-            enemisAI[i]->update();
         }
+        enemisAI[i]->update();
         rotateTankСollision(enemisAI[i]);
     }
     for (int i = 0; i < MAX_BULLETS; i++)

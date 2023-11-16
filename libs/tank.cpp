@@ -80,7 +80,7 @@ void Tank::setTankParametrs(typeTank type)
             std::cout << "Error: I can't read texture \"./sprites/enemy.png\"!!!\n";
             exit(1);
         }
-        speed = SPEED_ENEMY;
+        speed = 0.f;
         shootSpeed = SHOOT_SPEED_ENEMY;
         break;
     case enemyTankAI:
@@ -89,7 +89,7 @@ void Tank::setTankParametrs(typeTank type)
             std::cout << "Error: I can't read texture \"./sprites/enemy_ai.png\"!!!\n";
             exit(1);
         }
-        speed = SPEED_ENEMY_AI;
+        speed = 0.f;
         shootSpeed = SHOOT_SPEED_ENEMY_AI;
         break;
     default:
@@ -131,7 +131,20 @@ void Tank::stop()
 
 void Tank::drive()
 {
-    speed = SPEED_USER;
+    switch (type)
+    {
+        case userTank:
+            speed = SPEED_USER;
+            break;
+        case enemyTank:
+            speed = SPEED_ENEMY;
+            break;
+        case enemyTankAI:
+            speed = SPEED_ENEMY_AI;
+            break;
+        default:
+            break;
+    }
 }
 
 void Tank::shoot(World& world)

@@ -8,6 +8,7 @@ const int MAX_ENEMIS = 10;
 const int MAX_ENEMIS_AI = 5;
 const int MAX_BULLETS = 20;
 const sf::Vector2f TIME_RAND_DIRECTION = {2.f, 5.f};
+const float TIME_WAITING = 10.f;
 
 const sf::Vector2f DIRECTIONS[4] = {
     { 0.f, -1.f },

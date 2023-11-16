@@ -12,17 +12,18 @@ Tank::Tank(typeTank startType, sf::Vector2f startPosition, sf::Vector2f startDir
     timeLastShoot = 0.f;
     isDamaged = false;
     setDirection(startDirection);
-    preTime = clock.getElapsedTime().asSeconds();
+    preTimeUpdatePosition = clock.getElapsedTime().asSeconds();
+    preTimeUpdateDirection = clock.getElapsedTime().asSeconds();
 }
 
 void Tank::updatePosition()
 {
     float currentTime = clock.getElapsedTime().asSeconds();
-    float deltaTime = currentTime - preTime;
+    float deltaTime = currentTime - preTimeUpdatePosition;
     float offset = speed * deltaTime;
     sf::Vector2f newPosition = position + direction * offset;
     setPosition(newPosition);
-    preTime = currentTime;
+    preTimeUpdatePosition = currentTime;
 }
 
 void Tank::setPosition(sf::Vector2f newPosition)

@@ -48,6 +48,7 @@ void World::createEnemis()
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition();
         enemis[i] = new Tank(enemyTank, position, DIRECTIONS[randomDirection], clock);
+        enemis[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
 
@@ -58,6 +59,7 @@ void World::createEnemisAI()
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition();
         enemisAI[i] = new Tank(enemyTankAI, position, DIRECTIONS[randomDirection], clock);
+        enemisAI[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
 
@@ -185,6 +187,19 @@ void World::movTankOutside(Tank* tank)
         tank->setPosition({ position.x, 0 });
 }
 
+void World::rotateTankСollision(Tank* tank)
+{
+    sf::Vector2f position;
+    if ((position = tank->getPosition()).x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if ((position = tank->getPosition()).x > widthWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[RIGHT])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if ((position = tank->getPosition()).y < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[UP])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if ((position = tank->getPosition()).y > heightWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[DOWN])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+}
+
 void World::updateEvent()
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -219,14 +234,34 @@ void World::update()
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         if (enemis[i])
+        {
+            float currTime = clock.getElapsedTime().asSeconds();
+            float dt = currTime - enemis[i]->preTimeUpdateDirection;
+            if (dt > enemis[i]->stepRandomDirection)
+            {
+                int randomDirection = getRandomInt(0, 3);
+                enemis[i]->setDirection(DIRECTIONS[randomDirection]);
+                enemis[i]->preTimeUpdateDirection = currTime;
+            }
             enemis[i]->update();
-        movTankOutside(enemis[i]);
+        }
+        rotateTankСollision(enemis[i]);
     }
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         if (enemisAI[i])
+        {
+            float currTime = clock.getElapsedTime().asSeconds();
+            float dt = currTime - enemisAI[i]->preTimeUpdateDirection;
+            if (dt > enemisAI[i]->stepRandomDirection)
+            {
+                int randomDirection = getRandomInt(0, 3);
+                enemisAI[i]->setDirection(DIRECTIONS[randomDirection]);
+                enemisAI[i]->preTimeUpdateDirection = currTime;
+            }
             enemisAI[i]->update();
-        movTankOutside(enemisAI[i]);
+        }
+        rotateTankСollision(enemisAI[i]);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {

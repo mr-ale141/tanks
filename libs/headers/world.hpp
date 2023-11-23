@@ -8,7 +8,7 @@ const int MAX_ENEMIS = 10;
 const int MAX_ENEMIS_AI = 5;
 const int MAX_BULLETS = 20;
 const sf::Vector2f TIME_RAND_DIRECTION = {2.f, 5.f};
-const float TIME_WAITING = 10.f;
+const float TIME_WAITING = 3.f;
 
 const sf::Vector2f DIRECTIONS[4] = {
     { 0.f, -1.f },
@@ -43,6 +43,9 @@ public:
     void update();
     void updateEvent();
     void createBullet(sf::Vector2f position, sf::Vector2f direction, bool isEnemyBullet);
+    float getRandomFloat(float minValue, float maxValue);
+    unsigned getRandomInt(unsigned minValue, unsigned maxValue);
+    float getModule(sf::Vector2f vector);
 
 private:
     struct PRNG
@@ -59,11 +62,8 @@ private:
     class Fire* fire;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void initGenerator(PRNG& generator);
-    float getRandomFloat(float minValue, float maxValue);
-    unsigned getRandomInt(unsigned minValue, unsigned maxValue);
+    void initGenerator();
     sf::Vector2f getFreePosition();
-    float getModule(sf::Vector2f vector);
     void initEnemis();
     void initEnemisAI();
     void initBullets();
@@ -73,5 +73,9 @@ private:
     void createFire();
     bool isOutside(Bullet* bullet);
     void movTankOutside(Tank* tank);
-    void rotateTankСollision(Tank* tank);
+    void rotateTankCollision(Tank* tank);
+    void updateUser();
+    void updateEnemis();
+    void updateEnemisAI();
+    void updateBullets();
 };

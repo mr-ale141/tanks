@@ -8,7 +8,7 @@ World::World(int width, int height, sf::Clock& clockRef)
     clock = clockRef;
     widthWorld = float(width);
     heightWorld = float(height);
-    initGenerator(generator);
+    initGenerator();
     initBullets();
     initEnemis();
     createUser();
@@ -109,7 +109,7 @@ sf::Vector2f World::getFreePosition()
     return position;
 }
 
-void World::initGenerator(PRNG& generator)
+void World::initGenerator()
 {
     std::random_device device;
     generator.engine.seed(device());
@@ -187,16 +187,15 @@ void World::movTankOutside(Tank* tank)
         tank->setPosition({ position.x, 0 });
 }
 
-void World::rotateTankСollision(Tank* tank)
+void World::rotateTankCollision(Tank* tank)
 {
-    sf::Vector2f position;
-    if ((position = tank->getPosition()).x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
+    if (tank->getPosition().x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
-    if ((position = tank->getPosition()).x > widthWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[RIGHT])
+    if (tank->getPosition().x > widthWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[RIGHT])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
-    if ((position = tank->getPosition()).y < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[UP])
+    if (tank->getPosition().y < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[UP])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
-    if ((position = tank->getPosition()).y > heightWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[DOWN])
+    if (tank->getPosition().y > heightWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[DOWN])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
 }
 
@@ -224,13 +223,18 @@ void World::updateEvent()
     }
     else
         user->stop();
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        user->shoot(*this);
 }
 
-void World::update()
+void World::updateUser()
 {
-    user->update();
-    fire->update();
+    user->update(*this);
     movTankOutside(user);
+}
+
+void World::updateEnemis()
+{
     for (int i = 0; i < MAX_ENEMIS; i++)
     {
         float currTime = clock.getElapsedTime().asSeconds();
@@ -245,9 +249,13 @@ void World::update()
                 enemis[i]->preTimeUpdateDirection = currTime;
             }
         }
-        enemis[i]->update();
-        rotateTankСollision(enemis[i]);
+        enemis[i]->update(*this);
+        rotateTankCollision(enemis[i]);
     }
+}
+
+void World::updateEnemisAI()
+{
     for (int i = 0; i < MAX_ENEMIS_AI; i++)
     {
         float currTime = clock.getElapsedTime().asSeconds();
@@ -262,9 +270,13 @@ void World::update()
                 enemisAI[i]->preTimeUpdateDirection = currTime;
             }
         }
-        enemisAI[i]->update();
-        rotateTankСollision(enemisAI[i]);
+        enemisAI[i]->update(*this);
+        rotateTankCollision(enemisAI[i]);
     }
+}
+
+void World::updateBullets()
+{
     for (int i = 0; i < MAX_BULLETS; i++)
     {
         if (bullets[i])
@@ -282,7 +294,7 @@ void World::update()
                     Tank* tankEnemy = enemis[j];
                     sf::Vector2f position = tankEnemy->getPosition();
                     sf::Vector2f offset = position - bullets[i]->getPosition();
-                    if (getModule(offset) < SIZE_TANK / 2) 
+                    if (getModule(offset) < SIZE_TANK / 2)
                     {
                         tankEnemy->destroy();
                         fire->show(position);
@@ -299,7 +311,7 @@ void World::update()
                     Tank* tankEnemy = enemisAI[j];
                     sf::Vector2f position = tankEnemy->getPosition();
                     sf::Vector2f offset = position - bullets[i]->getPosition();
-                    if (getModule(offset) < SIZE_TANK / 2) 
+                    if (getModule(offset) < SIZE_TANK / 2)
                     {
                         tankEnemy->destroy();
                         fire->show(position);
@@ -311,4 +323,13 @@ void World::update()
             }
         }
     }
+}
+
+void World::update()
+{
+    updateUser();
+    fire->update();
+    updateEnemis();
+    updateEnemisAI();
+    updateBullets();
 }

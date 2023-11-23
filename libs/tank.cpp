@@ -4,7 +4,7 @@ Tank::Tank(typeTank startType, sf::Vector2f startPosition, sf::Vector2f startDir
 {
     clock = clockRef;
     type = startType;
-    setTankParametrs(type);
+    setTankParameters();
     setScaleTank();
     setOriginCenter();
     setPosition(startPosition);
@@ -61,7 +61,7 @@ void Tank::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(tank, states);
 }
 
-void Tank::setTankParametrs(typeTank type)
+void Tank::setTankParameters()
 {
     switch (type)
     {
@@ -150,10 +150,39 @@ void Tank::drive()
 void Tank::shoot(World& world)
 {
     float currTime = clock.getElapsedTime().asSeconds();
-    if (currTime - timeLastShoot > 1 / SHOOT_SPEED_USER)
+    bool iSee = false;
+    if (type == userTank)
     {
-        world.createBullet(position, direction, type != userTank);
-        timeLastShoot = clock.getElapsedTime().asSeconds();
+        if (currTime - timeLastShoot > 1 / SHOOT_SPEED_USER)
+        {
+            world.createBullet(position, direction, false);
+            timeLastShoot = currTime;
+        }
+    }
+    else
+    {
+        sf::Vector2f positionUser = world.user->getPosition();
+        sf::Vector2f directionForUser = positionUser - position;
+        float directionForUserModule = world.getModule(directionForUser);
+        sf::Vector2f directionForUserNormal = {
+            directionForUser.x / directionForUserModule,
+            directionForUser.y / directionForUserModule
+        };
+        float scalar = directionForUserNormal.x * direction.x + directionForUserNormal.y * direction.y;
+        if (std::abs(directionForUser.x) < SIZE_TANK / 2 || std::abs(directionForUser.y) < SIZE_TANK / 2)
+            if (scalar > 0.9)
+                iSee = true;
+    }
+    if (iSee && type == enemyTank && currTime - timeLastShoot > 1 / SHOOT_SPEED_ENEMY)
+    {
+        world.createBullet(position, direction, true);
+        timeLastShoot = currTime;
+    }
+    currTime = clock.getElapsedTime().asSeconds();
+    if (iSee && type == enemyTankAI && currTime - timeLastShoot > 1 / SHOOT_SPEED_ENEMY_AI)
+    {
+        world.createBullet(position, direction, true);
+        timeLastShoot = currTime;
     }
 }
 
@@ -163,8 +192,12 @@ void Tank::destroy()
     isDamaged = true;
 }
 
-void Tank::update()
+void Tank::update(World& world)
 {
     if (!isDamaged)
+    {
         updatePosition();
+        if (type != userTank) shoot(world);
+
+    }
 }

@@ -4,7 +4,7 @@
 Bullet::Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet, sf::Clock& clockRef)
 {
     clock = clockRef;
-    setBulletParametrs(isEnemyBullet);
+    setBulletParameters(isEnemyBullet);
     setOriginUpCenter();
     setDirection(startDirection);
     setPosition(startPosition);
@@ -36,7 +36,7 @@ void Bullet::draw(sf::RenderTarget& target, sf::RenderStates states) const
     target.draw(bullet, states);
 }
 
-void Bullet::setBulletParametrs(bool isEnemyBullet)
+void Bullet::setBulletParameters(bool isEnemyBullet)
 {
     isEnemy = isEnemyBullet;
     if (isEnemy)
@@ -76,7 +76,7 @@ void Bullet::setDirection(sf::Vector2f startDirection)
     else if (direction == DIRECTIONS[LEFT])
         bullet.setRotation(270.f);
     else
-        std::cout << "Error: Unknow direction!!!\n";
+        std::cout << "Error: Unknown direction!!!\n";
 }
 
 void Bullet::setPosition(sf::Vector2f newPosition)

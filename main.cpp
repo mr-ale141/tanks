@@ -7,6 +7,7 @@ constexpr int WINDOW_HEIGHT = 600;
 
 void pollEvents(sf::RenderWindow& window, World& world)
 {
+    world.updateEvent();
     sf::Event event;
     while (window.pollEvent(event))
     {
@@ -15,12 +16,7 @@ void pollEvents(sf::RenderWindow& window, World& world)
         case sf::Event::Closed:
             window.close();
             break;
-        case sf::Event::KeyPressed:
-            if (event.key.code == 57)
-                world.user->shoot(world);
-            break;
         default:
-            world.user->stop();
             break;
         }
     }
@@ -28,7 +24,6 @@ void pollEvents(sf::RenderWindow& window, World& world)
 
 void update(World& world)
 {
-    world.updateEvent();
     world.update();
 }
 

@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-static const int BULLET_SPEED = 200;
+static const int BULLET_SPEED = 300;
 
 class Bullet : public sf::Drawable
 {
@@ -28,7 +28,7 @@ private:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void updatePosition();
-    void setBulletParametrs(bool isEnemyBullet);
+    void setBulletParameters(bool isEnemyBullet);
     void setOriginUpCenter();
     void setDirection(sf::Vector2f startDirection);
     void setPosition(sf::Vector2f newPosition);

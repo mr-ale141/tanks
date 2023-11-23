@@ -7,9 +7,12 @@ const float SPEED_USER = 80.f;
 const float SPEED_ENEMY_AI = 20.f;
 const float SPEED_ENEMY = 40.f;
 const float SHOOT_SPEED_USER = 2.f;
-const float SHOOT_SPEED_ENEMY = 1 / 3;
-const float SHOOT_SPEED_ENEMY_AI = 1.f;
+const float SHOOT_SPEED_ENEMY = 1.f / 3.f;
+const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
 const float SIZE_TANK = 40.f;
+const int HP_USER = 3;
+const int HP_ENEMY = 1;
+const int HP_ENEMY_AI = 2;
 
 enum typeTank
 {
@@ -34,7 +37,7 @@ public:
     void shoot(World& world);
     void drive();
     void stop();
-    void update();
+    void update(World& world);
     void destroy();
 
 private : 
@@ -52,7 +55,7 @@ private :
     bool isDamaged;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void setTankParametrs(typeTank type);
+    void setTankParameters();
     void setScaleTank();
     void setOriginCenter();
     void updatePosition();

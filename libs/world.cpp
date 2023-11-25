@@ -1,3 +1,6 @@
+#include "headers/wallWood.hpp"
+#include "headers/wallMetal.hpp"
+#include "headers/wall.hpp"
 #include "headers/fire.hpp"
 #include "headers/bullet.hpp"
 #include "headers/tank.hpp"
@@ -12,26 +15,46 @@ World::World(int width, int height, sf::Clock& clockRef)
     clock = clockRef;
     widthWorld = float(width);
     heightWorld = float(height);
+    rowCount = int(heightWorld / SIZE_TANK);
+    columnCount = int(widthWorld / SIZE_TANK);
+    maxPositionCount = rowCount * columnCount;
+    initObjects();
+    createObjects();
+}
+
+void World::initObjects()
+{
     initGenerator();
     initBullets();
-    initEnemis();
-    createUser();
-    createEnemis();
-    createEnemisAI();
-    createFire();
+    initEnemies();
+    initEnemiesAI();
+    initWallMetal();
+    initWallWood();
+    initBullets();
 }
 
-void World::initEnemis()
+void World::initWallMetal()
 {
-    for (int i = 0; i < MAX_ENEMIS; ++i)
-        enemis[i] = NULL;
-    initEnemisAI();
+    for (int i = 0; i < MAX_WALL_METAL; ++i)
+        wallsMetal[i] = NULL;
 }
 
-void World::initEnemisAI()
+void World::initWallWood()
 {
-    for (int i = 0; i < MAX_ENEMIS_AI; ++i)
-        enemisAI[i] = NULL;
+    for (int i = 0; i < MAX_WALL_WOOD; ++i)
+        wallsWood[i] = NULL;
+}
+
+void World::initEnemies()
+{
+    for (int i = 0; i < MAX_Enemies; ++i)
+        enemies[i] = NULL;
+}
+
+void World::initEnemiesAI()
+{
+    for (int i = 0; i < MAX_Enemies_AI; ++i)
+        enemiesAI[i] = NULL;
 }
 
 void World::initBullets()
@@ -40,30 +63,58 @@ void World::initBullets()
         bullets[i] = NULL;
 }
 
+void World::createObjects()
+{
+    createUser();
+    createEnemies();
+    createEnemiesAI();
+    createFire();
+    createWallMetal();
+    createWallWood();
+}
+
+void World::createWallMetal()
+{
+    for (int i = 0; i < MAX_WALL_METAL; i++)
+    {
+        sf::Vector2f position = getFreePosition(0, maxPositionCount - 1);
+        wallsMetal[i] = new WallMetal(position);
+    }
+}
+
+void World::createWallWood()
+{
+    for (int i = 0; i < MAX_WALL_WOOD; i++)
+    {
+        sf::Vector2f position = getFreePosition(0, maxPositionCount - 1);
+        wallsWood[i] = new WallWood(position);
+    }
+}
+
 void World::createUser()
 {
     user = new TankUser({ float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
 }
 
-void World::createEnemis()
+void World::createEnemies()
 {
-    for (int i = 0; i < MAX_ENEMIS; i++)
+    for (int i = 0; i < MAX_Enemies; i++)
     {
         int randomDirection = getRandomInt(0, 3);
-        sf::Vector2f position = getFreePosition();
-        enemis[i] = new TankEnemy(position, DIRECTIONS[randomDirection], clock);
-        enemis[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
+        sf::Vector2f position = getFreePosition(0, maxPositionCount / 2 - 1);
+        enemies[i] = new TankEnemy(position, DIRECTIONS[randomDirection], clock);
+        enemies[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
 
-void World::createEnemisAI()
+void World::createEnemiesAI()
 {
-    for (int i = 0; i < MAX_ENEMIS_AI; i++)
+    for (int i = 0; i < MAX_Enemies_AI; i++)
     {
         int randomDirection = getRandomInt(0, 3);
-        sf::Vector2f position = getFreePosition();
-        enemisAI[i] = new TankEnemyAi(position, DIRECTIONS[randomDirection], clock);
-        enemisAI[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
+        sf::Vector2f position = getFreePosition(0, maxPositionCount / 2 - 1);
+        enemiesAI[i] = new TankEnemyAi(position, DIRECTIONS[randomDirection], clock);
+        enemiesAI[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
 
@@ -90,9 +141,9 @@ float World::getModule(sf::Vector2f v)
     return module;
 }
 
-sf::Vector2f World::getFreePosition()
+sf::Vector2f World::getFreePosition(int minNumPosition, int maxNumPosition)
 {
-    sf::Vector2f position = {widthWorld / 2, heightWorld / 2};
+    sf::Vector2f position;
     bool isBusyPosition;
     const int MAX_TRYING = 500;
     int countTrying = 0;
@@ -100,14 +151,23 @@ sf::Vector2f World::getFreePosition()
     {
         countTrying++;
         isBusyPosition = false;
-        position.x = getRandomFloat(SIZE_TANK / 2, World::widthWorld - SIZE_TANK / 2);
-        position.y = getRandomFloat(SIZE_TANK / 2, World::heightWorld / 2 - SIZE_TANK / 2);
+        int numPosition = getRandomInt(minNumPosition, maxNumPosition);
+        int rowNumber = numPosition / columnCount;
+        int columnNumber = numPosition % columnCount;
+        position.x = SIZE_TANK / 2 + columnNumber * SIZE_TANK;
+        position.y = SIZE_TANK / 2 + rowNumber * SIZE_TANK;
         if (getModule((user->getPosition() - position)) < SIZE_TANK) isBusyPosition = true;
-        for (int i = 0; i < MAX_ENEMIS_AI; ++i)
-            if (enemisAI[i] != NULL && getModule((enemisAI[i]->getPosition() - position)) < 2 * SIZE_TANK)
+        for (int i = 0; i < MAX_Enemies_AI; ++i)
+            if (enemiesAI[i] != NULL && getModule((enemiesAI[i]->getPosition() - position)) < 2 * SIZE_TANK)
                 isBusyPosition = true;
-        for (int i = 0; i < MAX_ENEMIS; ++i)
-            if (enemis[i] != NULL && getModule((enemis[i]->getPosition() - position)) < 2 * SIZE_TANK)
+        for (int i = 0; i < MAX_Enemies; ++i)
+            if (enemies[i] != NULL && getModule((enemies[i]->getPosition() - position)) < 2 * SIZE_TANK)
+                isBusyPosition = true;
+        for (int i = 0; i < MAX_WALL_METAL; ++i)
+            if (wallsMetal[i] != NULL && getModule((wallsMetal[i]->getPosition() - position)) < 2 * SIZE_TANK)
+                isBusyPosition = true;
+        for (int i = 0; i < MAX_WALL_WOOD; ++i)
+            if (wallsWood[i] != NULL && getModule((wallsWood[i]->getPosition() - position)) < 2 * SIZE_TANK)
                 isBusyPosition = true;
     } while (isBusyPosition && countTrying < MAX_TRYING);
     return position;
@@ -150,15 +210,25 @@ unsigned World::getRandomInt(unsigned minValue, unsigned maxValue)
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     target.draw(*user, states);
-    for (int i = 0; i < MAX_ENEMIS; i++)
+    for (int i = 0; i < MAX_Enemies; i++)
     {
-        if (enemis[i])
-            target.draw(*enemis[i], states);
+        if (enemies[i])
+            target.draw(*enemies[i], states);
     }
-    for (int i = 0; i < MAX_ENEMIS_AI; i++)
+    for (int i = 0; i < MAX_Enemies_AI; i++)
     {
-        if (enemisAI[i])
-            target.draw(*enemisAI[i], states);
+        if (enemiesAI[i])
+            target.draw(*enemiesAI[i], states);
+    }
+    for (int i = 0; i < MAX_WALL_METAL; i++)
+    {
+        if (wallsMetal[i])
+            target.draw(*wallsMetal[i], states);
+    }
+    for (int i = 0; i < MAX_WALL_WOOD; i++)
+    {
+        if (wallsWood[i])
+            target.draw(*wallsWood[i], states);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {
@@ -249,45 +319,45 @@ void World::updateUser()
     movTankOutside(user);
 }
 
-void World::updateEnemis()
+void World::updateEnemies()
 {
-    for (int i = 0; i < MAX_ENEMIS; i++)
+    for (int i = 0; i < MAX_Enemies; i++)
     {
         float currTime = clock.getElapsedTime().asSeconds();
-        if (enemis[i] && currTime > TIME_WAITING)
+        if (enemies[i] && currTime > TIME_WAITING)
         {
-            enemis[i]->drive();
-            float dt = currTime - enemis[i]->preTimeUpdateDirection;
-            if (dt > enemis[i]->stepRandomDirection)
+            enemies[i]->drive();
+            float dt = currTime - enemies[i]->preTimeUpdateDirection;
+            if (dt > enemies[i]->stepRandomDirection)
             {
                 int randomDirection = getRandomInt(0, 3);
-                enemis[i]->setDirection(DIRECTIONS[randomDirection]);
-                enemis[i]->preTimeUpdateDirection = currTime;
+                enemies[i]->setDirection(DIRECTIONS[randomDirection]);
+                enemies[i]->preTimeUpdateDirection = currTime;
             }
         }
-        enemis[i]->update(*this);
-        rotateTankCollision(enemis[i]);
+        enemies[i]->update(*this);
+        rotateTankCollision(enemies[i]);
     }
 }
 
-void World::updateEnemisAI()
+void World::updateEnemiesAI()
 {
-    for (int i = 0; i < MAX_ENEMIS_AI; i++)
+    for (int i = 0; i < MAX_Enemies_AI; i++)
     {
         float currTime = clock.getElapsedTime().asSeconds();
-        if (enemisAI[i] && currTime > TIME_WAITING)
+        if (enemiesAI[i] && currTime > TIME_WAITING)
         {
-            enemisAI[i]->drive();
-            float dt = currTime - enemisAI[i]->preTimeUpdateDirection;
-            if (dt > enemisAI[i]->stepRandomDirection)
+            enemiesAI[i]->drive();
+            float dt = currTime - enemiesAI[i]->preTimeUpdateDirection;
+            if (dt > enemiesAI[i]->stepRandomDirection)
             {
                 int randomDirection = getRandomInt(0, 3);
-                enemisAI[i]->setDirection(DIRECTIONS[randomDirection]);
-                enemisAI[i]->preTimeUpdateDirection = currTime;
+                enemiesAI[i]->setDirection(DIRECTIONS[randomDirection]);
+                enemiesAI[i]->preTimeUpdateDirection = currTime;
             }
         }
-        enemisAI[i]->update(*this);
-        rotateTankCollision(enemisAI[i]);
+        enemiesAI[i]->update(*this);
+        rotateTankCollision(enemiesAI[i]);
     }
 }
 
@@ -305,9 +375,9 @@ void World::updateBullets()
             }
             if (bullets[i] && !bullets[i]->isEnemy)
             {
-                for (int j = 0; j < MAX_ENEMIS; j++)
+                for (int j = 0; j < MAX_Enemies; j++)
                 {
-                    Tank* tankEnemy = enemis[j];
+                    Tank* tankEnemy = enemies[j];
                     sf::Vector2f position = tankEnemy->getPosition();
                     sf::Vector2f offset = position - bullets[i]->getPosition();
                     if (getModule(offset) < SIZE_TANK / 2)
@@ -322,9 +392,9 @@ void World::updateBullets()
             }
             if (bullets[i] && !bullets[i]->isEnemy)
             {
-                for (int j = 0; j < MAX_ENEMIS_AI; j++)
+                for (int j = 0; j < MAX_Enemies_AI; j++)
                 {
-                    Tank* tankEnemy = enemisAI[j];
+                    Tank* tankEnemy = enemiesAI[j];
                     sf::Vector2f position = tankEnemy->getPosition();
                     sf::Vector2f offset = position - bullets[i]->getPosition();
                     if (getModule(offset) < SIZE_TANK / 2)
@@ -345,7 +415,7 @@ void World::update()
 {
     updateUser();
     fire->update();
-    updateEnemis();
-    updateEnemisAI();
+    updateEnemies();
+    updateEnemiesAI();
     updateBullets();
 }

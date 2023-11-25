@@ -8,7 +8,6 @@ const float SPEED_ENEMY = 40.f;
 const float SHOOT_SPEED_USER = 2.f;
 const float SHOOT_SPEED_ENEMY = 1.f / 3.f;
 const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
-const float SIZE_TANK = 40.f;
 const int HP_USER = 3;
 const int HP_ENEMY = 1;
 const int HP_ENEMY_AI = 2;
@@ -32,9 +31,7 @@ public:
     void drive();
     virtual void shoot(World& world);
     virtual void update(World& world);
-
-private:
-
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 protected:
     float speed;
@@ -51,7 +48,6 @@ protected:
     sf::Vector2f position;
     sf::Vector2f direction;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void setScaleTank();
     void setOriginCenter();
     void updatePosition();

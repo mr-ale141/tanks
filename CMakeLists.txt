@@ -19,6 +19,9 @@ find_package(SFML 2.6 COMPONENTS window graphics system REQUIRED)
 add_executable(
     00
     main.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/wallWood.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/wallMetal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/wall.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/fire.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/bullet.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tankUser.hpp
@@ -26,6 +29,9 @@ add_executable(
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tankEnemyAi.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tank.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/world.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/wallWood.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/wallMetal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/wall.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/fire.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/tankUser.cpp

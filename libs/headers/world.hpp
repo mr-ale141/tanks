@@ -2,11 +2,14 @@
 #include <SFML/Graphics.hpp>
 #include <random>
 
-const int MAX_ENEMIS = 10;
-const int MAX_ENEMIS_AI = 5;
+const int MAX_Enemies = 10;
+const int MAX_Enemies_AI = 5;
 const int MAX_BULLETS = 20;
+const int MAX_WALL_METAL = 30;
+const int MAX_WALL_WOOD = 100;
 const sf::Vector2f TIME_RAND_DIRECTION = {2.f, 5.f};
-const float TIME_WAITING = 3.f;
+const float TIME_WAITING = 5.f;
+const float SIZE_TANK = 40.f;
 
 const sf::Vector2f DIRECTIONS[4] = {
     { 0.f, -1.f },
@@ -52,29 +55,40 @@ private:
     };
     float widthWorld;
     float heightWorld;
+    int maxPositionCount;
+    int rowCount;
+    int columnCount;
     PRNG generator;
     sf::Clock clock;
-    class TankEnemy* enemis[MAX_ENEMIS];
-    class TankEnemyAi* enemisAI[MAX_ENEMIS_AI];
+    class TankEnemy* enemies[MAX_Enemies];
+    class TankEnemyAi* enemiesAI[MAX_Enemies_AI];
     class Bullet* bullets[MAX_BULLETS];
     class Fire* fire;
+    class WallMetal* wallsMetal[MAX_WALL_METAL];
+    class WallWood* wallsWood[MAX_WALL_WOOD];
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void initGenerator();
-    sf::Vector2f getFreePosition();
-    void initEnemis();
-    void initEnemisAI();
+    sf::Vector2f getFreePosition(int minNumPosition, int maxNumPosition);
+    void initObjects();
+    void createObjects();
+    void initEnemies();
+    void initEnemiesAI();
+    void initWallMetal();
+    void initWallWood();
+    void createWallMetal();
+    void createWallWood();
     void initBullets();
     void createUser();
-    void createEnemis();
-    void createEnemisAI();
+    void createEnemies();
+    void createEnemiesAI();
     void createFire();
     bool isOutside(Bullet* bullet);
     void movTankOutside(TankUser* tank);
     void rotateTankCollision(TankEnemy* tank);
     void rotateTankCollision(TankEnemyAi* tank);
     void updateUser();
-    void updateEnemis();
-    void updateEnemisAI();
+    void updateEnemies();
+    void updateEnemiesAI();
     void updateBullets();
 };

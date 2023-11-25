@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-static const int BULLET_SPEED = 300;
+const int BULLET_SPEED = 300;
 
 class Bullet : public sf::Drawable
 {

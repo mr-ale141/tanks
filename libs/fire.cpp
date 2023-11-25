@@ -1,4 +1,5 @@
 #include "headers/fire.hpp"
+#include <iostream>
 
 
 Fire::Fire(sf::Clock& clockRef)

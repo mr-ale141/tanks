@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 const int MAX_ROW_TEXTURE_FIRE = 7;
 const int MAX_COLUNN_TEXTURE_FIRE = 15;

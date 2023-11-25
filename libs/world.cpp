@@ -1,7 +1,11 @@
 #include "headers/fire.hpp"
 #include "headers/bullet.hpp"
 #include "headers/tank.hpp"
+#include "headers/tankUser.hpp"
+#include "headers/tankEnemy.hpp"
+#include "headers/tankEnemyAi.hpp"
 #include "headers/world.hpp"
+#include <iostream>
 
 World::World(int width, int height, sf::Clock& clockRef)
 {
@@ -38,7 +42,7 @@ void World::initBullets()
 
 void World::createUser()
 {
-    user = new Tank(userTank, { float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
+    user = new TankUser({ float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
 }
 
 void World::createEnemis()
@@ -47,7 +51,7 @@ void World::createEnemis()
     {
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition();
-        enemis[i] = new Tank(enemyTank, position, DIRECTIONS[randomDirection], clock);
+        enemis[i] = new TankEnemy(position, DIRECTIONS[randomDirection], clock);
         enemis[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
@@ -58,7 +62,7 @@ void World::createEnemisAI()
     {
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition();
-        enemisAI[i] = new Tank(enemyTankAI, position, DIRECTIONS[randomDirection], clock);
+        enemisAI[i] = new TankEnemyAi(position, DIRECTIONS[randomDirection], clock);
         enemisAI[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
 }
@@ -174,7 +178,7 @@ bool World::isOutside(Bullet* bullet)
     return isOut;
 }
 
-void World::movTankOutside(Tank* tank)
+void World::movTankOutside(TankUser* tank)
 {
     sf::Vector2f position;
     if ((position = tank->getPosition()).x < 0)
@@ -187,7 +191,19 @@ void World::movTankOutside(Tank* tank)
         tank->setPosition({ position.x, 0 });
 }
 
-void World::rotateTankCollision(Tank* tank)
+void World::rotateTankCollision(TankEnemy* tank)
+{
+    if (tank->getPosition().x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if (tank->getPosition().x > widthWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[RIGHT])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if (tank->getPosition().y < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[UP])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+    if (tank->getPosition().y > heightWorld - SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[DOWN])
+        tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
+}
+
+void World::rotateTankCollision(TankEnemyAi* tank)
 {
     if (tank->getPosition().x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);

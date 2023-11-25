@@ -17,16 +17,22 @@ find_package(JPEG)
 find_package(SFML 2.6 COMPONENTS window graphics system REQUIRED)
 
 add_executable(
-    00 
+    00
     main.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/world.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tank.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/bullet.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/fire.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/world.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tank.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/bullet.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tankUser.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tankEnemy.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tankEnemyAi.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/tank.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers/world.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/fire.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/bullet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tankUser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tankEnemy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tankEnemyAi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/tank.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/world.cpp
 )
 
 target_include_directories(00 PRIVATE "${SFML_ROOT}/include")

@@ -1,5 +1,6 @@
 #include "headers/bullet.hpp"
 #include "headers/world.hpp"
+#include <iostream>
 
 Bullet::Bullet(sf::Vector2f startPosition, sf::Vector2f startDirection, bool isEnemyBullet, sf::Clock& clockRef)
 {

@@ -1,8 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <random>
-#include <vector>
 
 const int MAX_ENEMIS = 10;
 const int MAX_ENEMIS_AI = 5;
@@ -37,7 +35,7 @@ enum keyEnum
 class World : public sf::Drawable
 {
 public:
-    class Tank* user;
+    class TankUser* user;
 
     World(int width, int height, sf::Clock& clockRef);
     void update();
@@ -56,8 +54,8 @@ private:
     float heightWorld;
     PRNG generator;
     sf::Clock clock;
-    class Tank* enemis[MAX_ENEMIS];
-    class Tank* enemisAI[MAX_ENEMIS_AI];
+    class TankEnemy* enemis[MAX_ENEMIS];
+    class TankEnemyAi* enemisAI[MAX_ENEMIS_AI];
     class Bullet* bullets[MAX_BULLETS];
     class Fire* fire;
 
@@ -72,8 +70,9 @@ private:
     void createEnemisAI();
     void createFire();
     bool isOutside(Bullet* bullet);
-    void movTankOutside(Tank* tank);
-    void rotateTankCollision(Tank* tank);
+    void movTankOutside(TankUser* tank);
+    void rotateTankCollision(TankEnemy* tank);
+    void rotateTankCollision(TankEnemyAi* tank);
     void updateUser();
     void updateEnemis();
     void updateEnemisAI();

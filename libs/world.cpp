@@ -68,9 +68,9 @@ void World::createObjects()
     createUser();
     createEnemies();
     createEnemiesAI();
-    createFire();
     createWallMetal();
     createWallWood();
+    createFire();
 }
 
 void World::createWallMetal()
@@ -93,7 +93,7 @@ void World::createWallWood()
 
 void World::createUser()
 {
-    user = new TankUser({ float(widthWorld / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
+    user = new TankUser({ float(widthWorld / 2  - SIZE_TANK / 2), float(heightWorld - SIZE_TANK / 2) }, DIRECTIONS[UP], clock);
 }
 
 void World::createEnemies()
@@ -101,7 +101,7 @@ void World::createEnemies()
     for (int i = 0; i < MAX_Enemies; i++)
     {
         int randomDirection = getRandomInt(0, 3);
-        sf::Vector2f position = getFreePosition(0, maxPositionCount / 2 - 1);
+        sf::Vector2f position = getFreePosition(0, int(rowCount / 2) * columnCount + columnCount - 1);
         enemies[i] = new TankEnemy(position, DIRECTIONS[randomDirection], clock);
         enemies[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
     }
@@ -146,29 +146,54 @@ sf::Vector2f World::getFreePosition(int minNumPosition, int maxNumPosition)
     sf::Vector2f position;
     bool isBusyPosition;
     const int MAX_TRYING = 500;
+    const int numberPositionUser = 289;
+    int numPosition;
     int countTrying = 0;
     do
     {
         countTrying++;
         isBusyPosition = false;
-        int numPosition = getRandomInt(minNumPosition, maxNumPosition);
+        numPosition = getRandomInt(minNumPosition, maxNumPosition);
+        if (numPosition == numberPositionUser)
+        {
+            isBusyPosition = true;
+            continue;
+        }
         int rowNumber = numPosition / columnCount;
         int columnNumber = numPosition % columnCount;
         position.x = SIZE_TANK / 2 + columnNumber * SIZE_TANK;
         position.y = SIZE_TANK / 2 + rowNumber * SIZE_TANK;
-        if (getModule((user->getPosition() - position)) < SIZE_TANK) isBusyPosition = true;
         for (int i = 0; i < MAX_Enemies_AI; ++i)
-            if (enemiesAI[i] != NULL && getModule((enemiesAI[i]->getPosition() - position)) < 2 * SIZE_TANK)
+        {
+            if (enemiesAI[i] != NULL)
+            {
+                sf::Vector2f distance = enemiesAI[i]->getPosition() - position;
+                float module = getModule(distance);
+                if (module < SIZE_TANK)
+                {
+                    isBusyPosition = true;
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < MAX_Enemies && !isBusyPosition; ++i)
+            if (enemies[i] != NULL && getModule((enemies[i]->getPosition() - position)) < SIZE_TANK)
+            {
                 isBusyPosition = true;
-        for (int i = 0; i < MAX_Enemies; ++i)
-            if (enemies[i] != NULL && getModule((enemies[i]->getPosition() - position)) < 2 * SIZE_TANK)
+                break;
+            }
+        for (int i = 0; i < MAX_WALL_METAL && !isBusyPosition; ++i)
+            if (wallsMetal[i] != NULL && getModule((wallsMetal[i]->getPosition() - position)) < SIZE_TANK)
+            {
                 isBusyPosition = true;
-        for (int i = 0; i < MAX_WALL_METAL; ++i)
-            if (wallsMetal[i] != NULL && getModule((wallsMetal[i]->getPosition() - position)) < 2 * SIZE_TANK)
+                break;
+            }
+        for (int i = 0; i < MAX_WALL_WOOD && !isBusyPosition; ++i)
+            if (wallsWood[i] != NULL && getModule((wallsWood[i]->getPosition() - position)) < SIZE_TANK)
+            {
                 isBusyPosition = true;
-        for (int i = 0; i < MAX_WALL_WOOD; ++i)
-            if (wallsWood[i] != NULL && getModule((wallsWood[i]->getPosition() - position)) < 2 * SIZE_TANK)
-                isBusyPosition = true;
+                break;
+            }
     } while (isBusyPosition && countTrying < MAX_TRYING);
     return position;
 }

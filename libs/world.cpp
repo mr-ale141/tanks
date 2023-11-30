@@ -103,7 +103,7 @@ void World::createEnemies()
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition(0, int(rowCount / 2) * columnCount + columnCount - 1);
         enemies[i] = new TankEnemy(position, DIRECTIONS[randomDirection], clock);
-        enemies[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
+        enemies[i]->stepRandomDirection = SIZE_TANK * getRandomInt(STEP_RAND_DIRECTION.x, STEP_RAND_DIRECTION.y) / SPEED_ENEMY;
     }
 }
 
@@ -114,7 +114,7 @@ void World::createEnemiesAI()
         int randomDirection = getRandomInt(0, 3);
         sf::Vector2f position = getFreePosition(0, maxPositionCount / 2 - 1);
         enemiesAI[i] = new TankEnemyAi(position, DIRECTIONS[randomDirection], clock);
-        enemiesAI[i]->stepRandomDirection = getRandomFloat(TIME_RAND_DIRECTION.x, TIME_RAND_DIRECTION.y);
+        enemiesAI[i]->stepRandomDirection = SIZE_TANK * getRandomInt(STEP_RAND_DIRECTION.x, STEP_RAND_DIRECTION.y) / SPEED_ENEMY_AI;
     }
 }
 
@@ -234,6 +234,16 @@ unsigned World::getRandomInt(unsigned minValue, unsigned maxValue)
 
 void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
+    for (int i = 0; i < MAX_WALL_METAL; i++)
+    {
+        if (wallsMetal[i])
+            target.draw(*wallsMetal[i], states);
+    }
+    for (int i = 0; i < MAX_WALL_WOOD; i++)
+    {
+        if (wallsWood[i])
+            target.draw(*wallsWood[i], states);
+    }
     target.draw(*user, states);
     for (int i = 0; i < MAX_Enemies; i++)
     {
@@ -244,16 +254,6 @@ void World::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         if (enemiesAI[i])
             target.draw(*enemiesAI[i], states);
-    }
-    for (int i = 0; i < MAX_WALL_METAL; i++)
-    {
-        if (wallsMetal[i])
-            target.draw(*wallsMetal[i], states);
-    }
-    for (int i = 0; i < MAX_WALL_WOOD; i++)
-    {
-        if (wallsWood[i])
-            target.draw(*wallsWood[i], states);
     }
     for (int i = 0; i < MAX_BULLETS; i++)
     {
@@ -286,7 +286,7 @@ void World::movTankOutside(TankUser* tank)
         tank->setPosition({ position.x, 0 });
 }
 
-void World::rotateTankCollision(TankEnemy* tank)
+void World::rotateTankCollisionEdge(TankEnemy* tank)
 {
     if (tank->getPosition().x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
@@ -298,7 +298,7 @@ void World::rotateTankCollision(TankEnemy* tank)
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
 }
 
-void World::rotateTankCollision(TankEnemyAi* tank)
+void World::rotateTankCollisionEdgeAI(TankEnemyAi* tank)
 {
     if (tank->getPosition().x < SIZE_TANK / 2 && tank->getDirection() == DIRECTIONS[LEFT])
         tank->setDirection(DIRECTIONS[getRandomInt(0, 3)]);
@@ -344,45 +344,127 @@ void World::updateUser()
     movTankOutside(user);
 }
 
-void World::updateEnemies()
+void World::updateDirectionEnemy(int indexEnemy, bool isHard)
 {
-    for (int i = 0; i < MAX_Enemies; i++)
+    if (enemies[indexEnemy])
     {
         float currTime = clock.getElapsedTime().asSeconds();
-        if (enemies[i] && currTime > TIME_WAITING)
+        float dt = currTime - enemies[indexEnemy]->preTimeUpdateDirection;
+        if (dt >= enemies[indexEnemy]->stepRandomDirection || isHard)
         {
-            enemies[i]->drive();
-            float dt = currTime - enemies[i]->preTimeUpdateDirection;
-            if (dt > enemies[i]->stepRandomDirection)
-            {
-                int randomDirection = getRandomInt(0, 3);
-                enemies[i]->setDirection(DIRECTIONS[randomDirection]);
-                enemies[i]->preTimeUpdateDirection = currTime;
-            }
+            int randomDirection = getRandomInt(0, 3);
+            enemies[indexEnemy]->setDirection(DIRECTIONS[randomDirection]);
+            enemies[indexEnemy]->stepRandomDirection =
+                SIZE_TANK
+                * getRandomInt(
+                    STEP_RAND_DIRECTION.x,
+                    STEP_RAND_DIRECTION.y)
+                / SPEED_ENEMY;
+            enemies[indexEnemy]->preTimeUpdateDirection = currTime;
         }
-        enemies[i]->update(*this);
-        rotateTankCollision(enemies[i]);
+    }
+}
+
+void World::updateDirectionEnemyAI(int indexEnemyAI, bool isHard)
+{
+    if (enemiesAI[indexEnemyAI])
+    {
+        float currTime = clock.getElapsedTime().asSeconds();
+        float dt = currTime - enemiesAI[indexEnemyAI]->preTimeUpdateDirection;
+        if (dt >= enemiesAI[indexEnemyAI]->stepRandomDirection || isHard)
+        {
+            int randomDirection = getRandomInt(0, 3);
+            enemiesAI[indexEnemyAI]->setDirection(DIRECTIONS[randomDirection]);
+            enemiesAI[indexEnemyAI]->stepRandomDirection =
+                SIZE_TANK
+                * getRandomInt(
+                    STEP_RAND_DIRECTION.x,
+                    STEP_RAND_DIRECTION.y)
+                / SPEED_ENEMY_AI;
+            enemiesAI[indexEnemyAI]->preTimeUpdateDirection = currTime;
+        }
+    }
+}
+
+void World::updateEnemies()
+{
+    for (int indexEnemy = 0; indexEnemy < MAX_Enemies; indexEnemy++)
+    {
+        updateDirectionEnemy(indexEnemy);
+        enemies[indexEnemy]->update(*this);
+        rotateTankCollisionEdge(enemies[indexEnemy]);
+        bool iCantMove = iBeforeWall(
+            enemies[indexEnemy]->getPosition(),
+            enemies[indexEnemy]->getDirection());
+        if (iCantMove)
+        {
+            enemies[indexEnemy]->stop();
+            updateDirectionEnemy(indexEnemy, true);
+            iCantMove = iBeforeWall(
+                enemies[indexEnemy]->getPosition(),
+                enemies[indexEnemy]->getDirection());
+        }
+        if (!iCantMove && clock.getElapsedTime().asSeconds() > TIME_WAITING)
+            enemies[indexEnemy]->drive();
     }
 }
 
 void World::updateEnemiesAI()
 {
+    for (int indexEnemyAI = 0; indexEnemyAI < MAX_Enemies_AI; indexEnemyAI++)
+    {
+        updateDirectionEnemyAI(indexEnemyAI);
+        enemiesAI[indexEnemyAI]->update(*this);
+        rotateTankCollisionEdgeAI(enemiesAI[indexEnemyAI]);
+        bool iCantMov = iBeforeWall(
+            enemiesAI[indexEnemyAI]->getPosition(),
+            enemiesAI[indexEnemyAI]->getDirection());
+        if (iCantMov)
+        {
+            enemiesAI[indexEnemyAI]->stop();
+            updateDirectionEnemyAI(indexEnemyAI, true);
+            iCantMov = iBeforeWall(
+                enemiesAI[indexEnemyAI]->getPosition(),
+                enemiesAI[indexEnemyAI]->getDirection());
+        }
+        if (!iCantMov && clock.getElapsedTime().asSeconds() > TIME_WAITING)
+            enemiesAI[indexEnemyAI]->drive();
+    }
+}
+
+void World::destroyEnemies(int indexBullet)
+{
+    for (int i = 0; i < MAX_Enemies; i++)
+    {
+        Tank* tankEnemy = enemies[i];
+        sf::Vector2f position = tankEnemy->getPosition();
+        sf::Vector2f offset = position - bullets[indexBullet]->getPosition();
+        if (getModule(offset) < SIZE_TANK / 2)
+        {
+            tankEnemy->destroy();
+            fire->show(position);
+            delete bullets[indexBullet];
+            bullets[indexBullet] = NULL;
+            break;
+        }
+    }
+}
+
+void World::destroyEnemiesAI(int indexBulletAI)
+{
     for (int i = 0; i < MAX_Enemies_AI; i++)
     {
-        float currTime = clock.getElapsedTime().asSeconds();
-        if (enemiesAI[i] && currTime > TIME_WAITING)
+        Tank* tankEnemy = enemiesAI[i];
+        sf::Vector2f position = tankEnemy->getPosition();
+        sf::Vector2f offset = position - bullets[indexBulletAI]->getPosition();
+        if (getModule(offset) < SIZE_TANK / 2)
         {
-            enemiesAI[i]->drive();
-            float dt = currTime - enemiesAI[i]->preTimeUpdateDirection;
-            if (dt > enemiesAI[i]->stepRandomDirection)
-            {
-                int randomDirection = getRandomInt(0, 3);
-                enemiesAI[i]->setDirection(DIRECTIONS[randomDirection]);
-                enemiesAI[i]->preTimeUpdateDirection = currTime;
-            }
+            tankEnemy->destroy();
+            fire->show(position);
+            delete bullets[indexBulletAI];
+            bullets[indexBulletAI] = NULL;
+            break;
         }
-        enemiesAI[i]->update(*this);
-        rotateTankCollision(enemiesAI[i]);
     }
 }
 
@@ -395,43 +477,13 @@ void World::updateBullets()
             bullets[i]->update();
             if (isOutside(bullets[i]))
             {
-                free(bullets[i]);
+                delete bullets[i];
                 bullets[i] = NULL;
             }
             if (bullets[i] && !bullets[i]->isEnemy)
-            {
-                for (int j = 0; j < MAX_Enemies; j++)
-                {
-                    Tank* tankEnemy = enemies[j];
-                    sf::Vector2f position = tankEnemy->getPosition();
-                    sf::Vector2f offset = position - bullets[i]->getPosition();
-                    if (getModule(offset) < SIZE_TANK / 2)
-                    {
-                        tankEnemy->destroy();
-                        fire->show(position);
-                        free(bullets[i]);
-                        bullets[i] = NULL;
-                        break;
-                    }
-                }
-            }
+                destroyEnemies(i);
             if (bullets[i] && !bullets[i]->isEnemy)
-            {
-                for (int j = 0; j < MAX_Enemies_AI; j++)
-                {
-                    Tank* tankEnemy = enemiesAI[j];
-                    sf::Vector2f position = tankEnemy->getPosition();
-                    sf::Vector2f offset = position - bullets[i]->getPosition();
-                    if (getModule(offset) < SIZE_TANK / 2)
-                    {
-                        tankEnemy->destroy();
-                        fire->show(position);
-                        free(bullets[i]);
-                        bullets[i] = NULL;
-                        break;
-                    }
-                }
-            }
+                destroyEnemiesAI(i);
         }
     }
 }
@@ -443,4 +495,56 @@ void World::update()
     updateEnemies();
     updateEnemiesAI();
     updateBullets();
+}
+
+bool World::iSee(sf::Vector2f directionSelf, sf::Vector2f posSelf, sf::Vector2f posTarget, float sector)
+{
+    bool iSee = false;
+    sf::Vector2f directionForTarget = posTarget - posSelf;
+    float directionForTargetModule = getModule(directionForTarget);
+    sf::Vector2f directionForUserNormal = {
+        directionForTarget.x / directionForTargetModule,
+        directionForTarget.y / directionForTargetModule
+    };
+    float scalar = directionForUserNormal.x * directionSelf.x + directionForUserNormal.y * directionSelf.y;
+    if (scalar >= sector)
+        iSee = true;
+    return  iSee;
+}
+
+bool World::iBeforeWall(sf::Vector2f positionSelf, sf::Vector2f directionSelf)
+{
+    bool iBeforeWall = false;
+    for (int indexWall = 0; indexWall < MAX_WALL_WOOD; indexWall++)
+    {
+        sf::Vector2f positionWall = wallsWood[indexWall]->getPosition();
+        sf::Vector2f directionForTarget = positionWall - positionSelf;
+        float module = getModule(directionForTarget);
+        if (module <= SIZE_TANK)
+        {
+            bool isBeforeMe = iSee(directionSelf, positionSelf, positionWall);
+            if (isBeforeMe)
+            {
+                iBeforeWall = true;
+                break;
+            }
+        }
+    }
+    if (!iBeforeWall)
+        for (int indexWallMetal = 0; indexWallMetal < MAX_WALL_METAL; indexWallMetal++)
+        {
+            sf::Vector2f positionWall = wallsMetal[indexWallMetal]->getPosition();
+            sf::Vector2f directionForTarget = positionWall - positionSelf;
+            float module = getModule(directionForTarget);
+            if (module <= SIZE_TANK)
+            {
+                bool isBeforeMe = iSee(directionSelf, positionSelf, positionWall);
+                if (isBeforeMe)
+                {
+                    iBeforeWall = true;
+                    break;
+                }
+            }
+        }
+    return iBeforeWall;
 }

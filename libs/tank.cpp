@@ -97,17 +97,7 @@ void Tank::drive()
 void Tank::shoot(World& world)
 {
     float currTime = clock.getElapsedTime().asSeconds();
-    bool iSee = false;
-    sf::Vector2f positionUser = world.user->getPosition();
-    sf::Vector2f directionForUser = positionUser - position;
-    float directionForUserModule = world.getModule(directionForUser);
-    sf::Vector2f directionForUserNormal = {
-        directionForUser.x / directionForUserModule,
-        directionForUser.y / directionForUserModule
-    };
-    float scalar = directionForUserNormal.x * direction.x + directionForUserNormal.y * direction.y;
-    if (scalar > SECTOR_VIEW)
-        iSee = true;
+    bool iSee = world.iSee(direction, position, world.user->getPosition());
     if (iSee && currTime - timeLastShoot > 1 / shootSpeed)
     {
         world.createBullet(position, direction, true);

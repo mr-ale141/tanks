@@ -11,7 +11,6 @@ const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
 const int HP_USER = 3;
 const int HP_ENEMY = 1;
 const int HP_ENEMY_AI = 2;
-const float SECTOR_VIEW = 0.98;
 
 class Tank : public sf::Drawable
 {

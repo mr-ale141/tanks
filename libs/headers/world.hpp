@@ -2,12 +2,12 @@
 #include <SFML/Graphics.hpp>
 #include <random>
 
-const int MAX_Enemies = 10;
-const int MAX_Enemies_AI = 5;
+const int MAX_Enemies = 15;
+const int MAX_Enemies_AI = 10;
 const int MAX_BULLETS = 20;
-const int MAX_WALL_METAL = 30;
-const int MAX_WALL_WOOD = 100;
-const sf::Vector2i STEP_RAND_DIRECTION = {2, 10};
+const int MAX_WALL_METAL = 15;
+const int MAX_WALL_WOOD = 50;
+const sf::Vector2i STEP_RAND_DIRECTION = {1, 4};
 const float TIME_WAITING = 10.f;
 const float SIZE_TANK = 40.f;
 const float SECTOR_VIEW = 0.98;

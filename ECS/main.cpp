@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <iostream>
 #include <random>
 #include "flecs.h"
@@ -9,6 +10,7 @@ constexpr unsigned MAX_ENEMY = 10;
 constexpr unsigned MAX_ENEMY_AI = 5;
 constexpr unsigned MAX_WALL_WOOD = 50;
 constexpr unsigned MAX_WALL_METAL = 10;
+constexpr unsigned SIZE_TANK = 40;
 
 //void init()
 //{
@@ -80,7 +82,7 @@ struct Rand {
     }
 };
 
-struct Textures {
+struct Render {
     sf::Texture userTexture;
     sf::Texture enemyTexture;
     sf::Texture enemyAiTexture;
@@ -90,6 +92,7 @@ struct Textures {
     sf::Texture wallWoodTexture_0;
     sf::Texture wallWoodTexture_1;
     sf::Texture wallWoodTexture_2;
+    sf::RenderWindow* window;
 };
 
 struct User {};
@@ -98,64 +101,72 @@ struct EnemyAI {};
 struct WallWood {};
 struct WallMetal {};
 
-void initTextures(flecs::world& world) {
-    Textures textures;
+void initRender(flecs::world& world) {
+    Render render;
 
-    if (!textures.userTexture.loadFromFile("../sprites/user.png"))
+    if (!render.userTexture.loadFromFile("../sprites/user.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/user.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.enemyTexture.loadFromFile("../sprites/enemy.png"))
+    if (!render.enemyTexture.loadFromFile("../sprites/enemy.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/enemy.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.enemyAiTexture.loadFromFile("../sprites/enemy_ai.png"))
+    if (!render.enemyAiTexture.loadFromFile("../sprites/enemy_ai.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/enemy_ai.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.userBulletTexture.loadFromFile("../sprites/bullet_user.png"))
+    if (!render.userBulletTexture.loadFromFile("../sprites/bullet_user.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/bullet_user.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.enemyBulletTexture.loadFromFile("../sprites/bullet_enemy.png"))
+    if (!render.enemyBulletTexture.loadFromFile("../sprites/bullet_enemy.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/bullet_enemy.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.wallMetalTexture.loadFromFile("../sprites/wall_metal.png"))
+    if (!render.wallMetalTexture.loadFromFile("../sprites/wall_metal.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/wall_metal.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.wallWoodTexture_0.loadFromFile("../sprites/wall_wood_0.png"))
+    if (!render.wallWoodTexture_0.loadFromFile("../sprites/wall_wood_0.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/wall_wood_0.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.wallWoodTexture_1.loadFromFile("../sprites/wall_wood_1.png"))
+    if (!render.wallWoodTexture_1.loadFromFile("../sprites/wall_wood_1.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/wall_wood_1.png\"!!!\n";
         exit(1);
     }
 
-    if (!textures.wallWoodTexture_2.loadFromFile("../sprites/wall_wood_2.png"))
+    if (!render.wallWoodTexture_2.loadFromFile("../sprites/wall_wood_2.png"))
     {
         std::cout << "Error: I can't read texture \"../sprites/wall_wood_2.png\"!!!\n";
         exit(1);
     }
 
-    world.set<Textures>(textures);
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    render.window = new sf::RenderWindow;
+    render.window->create(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
+                       "Tanks",
+                       sf::Style::Default,
+                       settings);
+
+    world.set<Render>(render);
 }
 
 void initRand(flecs::world& world)
@@ -167,59 +178,97 @@ void initRand(flecs::world& world)
 
 void createEntities(flecs::world& world)
 {
-    auto textures = world.entity<Textures>();
-
-    world.entity().add<User>().add<sf::Sprite>().is_a(textures);
-    world.each([](sf::Sprite& sprite, Textures& textures, User) {
-        sprite.setTexture(textures.userTexture);
-    });
+    world.entity().add<User>().add<sf::Sprite>();
+    world.filter_builder<sf::Sprite, User, Render>()
+            .term_at(3).singleton()
+            .build()
+            .each([](sf::Sprite& sprite, User, Render& render) {
+                sprite.setTexture(render.userTexture);
+                sprite.setPosition({400.f, 580.f});
+            });
 
     for (int i = 0; i < MAX_ENEMY; i++)
-        world.entity().add<Enemy>().add<sf::Sprite>().is_a(textures);
-    world.each([](sf::Sprite& sprite, Textures& textures, Enemy) {
-        sprite.setTexture(textures.enemyTexture);
-    });
+        world.entity().add<Enemy>().add<sf::Sprite>();
+    world.filter_builder<sf::Sprite, Enemy, Render, Rand>()
+            .term_at(3).singleton()
+            .term_at(4).singleton()
+            .build()
+            .each([](sf::Sprite& sprite, Enemy, Render& render, Rand& rand) {
+                sprite.setTexture(render.enemyTexture);
+                sf::Vector2f position;
+                position.x = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_WIDTH - SIZE_TANK / 2);
+                position.y = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_HEIGHT - SIZE_TANK / 2);
+                sprite.setPosition(position);
+            });
 
     for (int i = 0; i < MAX_ENEMY_AI; i++)
-        world.entity().add<EnemyAI>().add<sf::Sprite>().is_a(textures);
-    world.each([](sf::Sprite& sprite, Textures& textures, EnemyAI) {
-        sprite.setTexture(textures.enemyAiTexture);
-    });
+        world.entity().add<EnemyAI>().add<sf::Sprite>();
+    world.filter_builder<sf::Sprite, EnemyAI, Render, Rand>()
+            .term_at(3).singleton()
+            .term_at(4).singleton()
+            .build()
+            .each([](sf::Sprite& sprite, EnemyAI, Render& render, Rand& rand) {
+                sprite.setTexture(render.enemyAiTexture);
+                sf::Vector2f position;
+                position.x = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_WIDTH - SIZE_TANK / 2);
+                position.y = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_HEIGHT - SIZE_TANK / 2);
+                sprite.setPosition(position);
+            });
 
-    for (int i = 0; i < MAX_ENEMY; i++)
-        world.entity().add<WallWood>().add<sf::Sprite>().is_a(textures);
-    world.each([](sf::Sprite& sprite, Textures& textures, WallWood) {
-        sprite.setTexture(textures.wallWoodTexture_0);
-    });
+    for (int i = 0; i < MAX_WALL_WOOD; i++)
+        world.entity().add<WallWood>().add<sf::Sprite>();
+    world.filter_builder<sf::Sprite, WallWood, Render, Rand>()
+            .term_at(3).singleton()
+            .term_at(4).singleton()
+            .build()
+            .each([](sf::Sprite& sprite, WallWood, Render& render, Rand& rand) {
+                sprite.setTexture(render.wallWoodTexture_0);
+                sf::Vector2f position;
+                position.x = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_WIDTH - SIZE_TANK / 2);
+                position.y = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_HEIGHT - SIZE_TANK / 2);
+                sprite.setPosition(position);
+            });
 
-    for (int i = 0; i < MAX_ENEMY; i++)
-        world.entity().add<WallMetal>().add<sf::Sprite>().is_a(textures);
-    world.each([](sf::Sprite& sprite, Textures& textures, WallMetal) {
-        sprite.setTexture(textures.wallMetalTexture);
-    });
+    for (int i = 0; i < MAX_WALL_METAL; i++)
+        world.entity().add<WallMetal>().add<sf::Sprite>();
+    world.filter_builder<sf::Sprite, WallMetal, Render, Rand>()
+            .term_at(3).singleton()
+            .term_at(4).singleton()
+            .build()
+            .each([](sf::Sprite& sprite, WallMetal, Render& render, Rand& rand) {
+                sprite.setTexture(render.wallMetalTexture);
+                sf::Vector2f position;
+                position.x = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_WIDTH - SIZE_TANK / 2);
+                position.y = rand.getRandomFloat(SIZE_TANK / 2, WINDOW_HEIGHT - SIZE_TANK / 2);
+                sprite.setPosition(position);
+            });
 }
 
 int main(int argc, char *argv[])
 {
     flecs::world world(argc, argv);
-    initTextures(world);
+    initRender(world);
     initRand(world);
     createEntities(world);
 
+    auto render = world.get<Render>();
+
+    while(1)
+    {
+        render->window->clear();
+
+        world.filter_builder<sf::Sprite, Render>()
+                .term_at(2).singleton()
+                .build()
+                .each([](sf::Sprite& sprite, Render& render) {
+                    render.window->draw(sprite);
+                });
+
+        render->window->display();
+    }
 
 
 
-
-
-
-
-//    sf::ContextSettings settings;
-//    settings.antialiasingLevel = 8;
-//    sf::RenderWindow window(
-//            sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
-//            "Arrow",
-//            sf::Style::Default,
-//            settings);
 
 
 
@@ -228,5 +277,8 @@ int main(int argc, char *argv[])
 //        pollEvents(window);
 //        update();
 //        redrawFrame(window);
+//                window.clear();
+//                window.draw();
+//                window.display();
 //    }
 }

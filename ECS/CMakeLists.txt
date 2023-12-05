@@ -21,7 +21,9 @@ add_subdirectory(flecs-master)
 add_executable(
     Tanks
         main.cpp
-        utils/initWorld.h)
+        utils/initWorld.h
+        systems/moving/movingSystem.h
+        systems/render/renderSystem.h)
 
 target_include_directories(Tanks PRIVATE "${SFML_ROOT}/include")
 target_compile_features(Tanks PUBLIC cxx_std_17)

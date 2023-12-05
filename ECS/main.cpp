@@ -27,7 +27,7 @@
 //void redrawFrame(sf::RenderWindow& window)
 //{
 //    window.clear();
-//    window.draw();
+//    window.render();
 //    window.display();
 //}
 
@@ -36,21 +36,11 @@ int main(int argc, char *argv[])
     flecs::world world(argc, argv);
     initWorld(world);
 
-    auto render = world.get<Render>();
 
-    while(1)
-    {
-        render->window->clear();
 
-        world.filter_builder<sf::Sprite, Render>()
-                .term_at(2).singleton()
-                .build()
-                .each([](sf::Sprite& sprite, Render& render) {
-                    render.window->draw(sprite);
-                });
 
-        render->window->display();
-    }
+
+    while (world.progress()) {}
 
 //    while (window.isOpen())
 //    {
@@ -58,7 +48,7 @@ int main(int argc, char *argv[])
 //        update();
 //        redrawFrame(window);
 //                window.clear();
-//                window.draw();
+//                window.render();
 //                window.display();
 //    }
 }

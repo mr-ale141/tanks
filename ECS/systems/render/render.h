@@ -15,6 +15,12 @@ const sf::Vector2f POSITION_USER = {
         float(SIZE_TANK) / 2 + NUM_POSITION_USER % COLUMN_COUNT * SIZE_TANK,
         float(SIZE_TANK) / 2 + NUM_POSITION_USER / COLUMN_COUNT * SIZE_TANK};
 
+struct User {};
+struct Enemy {};
+struct EnemyAI {};
+struct WallWood {};
+struct WallMetal {};
+
 struct Render {
     sf::Texture userTexture;
     sf::Texture enemyTexture;

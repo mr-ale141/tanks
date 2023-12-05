@@ -6,12 +6,6 @@ constexpr unsigned MAX_ENEMY_AI = 5;
 constexpr unsigned MAX_WALL_WOOD = 50;
 constexpr unsigned MAX_WALL_METAL = 10;
 
-struct User {};
-struct Enemy {};
-struct EnemyAI {};
-struct WallWood {};
-struct WallMetal {};
-
 void setScaleTank(sf::Sprite& sprite)
 {
     sf::Vector2f targetSize;

@@ -56,6 +56,7 @@ void initMovingSystem(flecs::world& world)
                     Moving& moving,
                     Render& render,
                     Rand& rand) {
+                setDirection(sprite, moving.direction);
                 std::string typesStr = std::string (e.type().str());
                 float currentTime = render.clock.getElapsedTime().asSeconds();
                 float deltaTime = currentTime - moving.preTimeMoving;

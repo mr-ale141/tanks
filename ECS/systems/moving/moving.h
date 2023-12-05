@@ -1,7 +1,7 @@
 #pragma ONCE
 #include <string>
 #include <iostream>
-#include "../render/renderSystem.h"
+#include "../render/render.h"
 
 const float SPEED_USER = 80.f;
 const float SPEED_ENEMY_AI = 20.f;

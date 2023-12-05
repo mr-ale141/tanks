@@ -1,5 +1,5 @@
 #pragma ONCE
-#include "../systems/moving/movingSystem.h"
+#include "../systems/control/control.h"
 
 constexpr unsigned MAX_ENEMY = 10;
 constexpr unsigned MAX_ENEMY_AI = 5;
@@ -154,4 +154,5 @@ void initWorld(flecs::world& world)
     initDrawSystem(world);
     initMovingSystem(world);
     createEntities(world);
+    initControlObserver(world);
 }

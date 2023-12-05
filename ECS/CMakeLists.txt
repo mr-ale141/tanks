@@ -18,7 +18,10 @@ find_package(SFML 2.6 COMPONENTS window graphics system REQUIRED)
 
 add_subdirectory(flecs-master)
 
-add_executable(Tanks main.cpp)
+add_executable(
+    Tanks
+        main.cpp
+        utils/initWorld.h)
 
 target_include_directories(Tanks PRIVATE "${SFML_ROOT}/include")
 target_compile_features(Tanks PUBLIC cxx_std_17)

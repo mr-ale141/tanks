@@ -6,15 +6,15 @@ struct Control {
     sf::Event event;
 };
 
-void initControlObserver(flecs::world& world)
+void initControl(flecs::world& world)
 {
     Control control;
     world.set<Control>(control);
 
-    world.system<Moving, User, Render, Control>()
-            .term_at(3).singleton()
-            .term_at(4).singleton()
-            .each([](Moving& moving, User, Render& render, Control& control) {
+    world.system<Render, Control>()
+            .term_at(1).singleton()
+            .term_at(2).singleton()
+            .each([](Render& render, Control& control) {
                 while(render.window->pollEvent(control.event))
                 {
                     switch (control.event.type)
@@ -26,7 +26,10 @@ void initControlObserver(flecs::world& world)
                             break;
                     }
                 }
-                
+            }).add(flecs::PreUpdate);
+
+    world.system<Moving, User>()
+            .each([](Moving& moving, User) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 {
                     moving.speed = SPEED_USER;
@@ -52,33 +55,5 @@ void initControlObserver(flecs::world& world)
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
                     ;
-
             }).add(flecs::PreUpdate);
 }
-
-//void pollEvents(sf::RenderWindow& window)
-//{
-//    sf::Event event;
-//    while (window.pollEvent(event))
-//    {
-//        switch (event.type)
-//        {
-//            case sf::Event::Closed:
-//                window.close();
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//}
-
-
-//    while (window.isOpen())
-//    {
-//        pollEvents(window);
-//        update();
-//        redrawFrame(window);
-//                window.clear();
-//                window.render();
-//                window.display();
-//    }

@@ -59,21 +59,18 @@ void createEntities(flecs::world& world)
     for (int i = 0; i < MAX_WALL_METAL; i++)
         world.entity().add<WallMetal>().add<sf::Sprite>();
 
-
-
     world.filter_builder<Moving, sf::Sprite, User, Render>()
             .term_at(4).singleton()
             .build()
             .each([](flecs::entity e, Moving& moving, sf::Sprite& sprite, User, Render& render) {
                 moving.direction = UP;
-                moving.speed = 0.f;
                 moving.preTimeMoving = render.clock.getElapsedTime().asSeconds();
                 moving.positionScreen = NUM_POSITION_USER;
                 render.busyPositionScreen[moving.positionScreen] = flecs::id(e.id());
                 sprite.setTexture(render.userTexture);
                 setScaleTank(sprite);
                 setOriginCenter(sprite);
-                sprite.setPosition(POSITION_USER);
+                sprite.setPosition(getPositionCenter(NUM_POSITION_USER));
             });
 
     world.filter_builder<Moving, sf::Sprite, Render, Rand>()
@@ -92,7 +89,6 @@ void createEntities(flecs::world& world)
                     sprite.setTexture(render.enemyTexture);
                 }
                 moving.direction = directionEnum(rand.getRandomInt(0, 3));
-                moving.speed = 0.f;
                 moving.preTimeMoving = render.clock.getElapsedTime().asSeconds();
                 unsigned numPosition = getFreePosition(
                         rand,
@@ -101,11 +97,7 @@ void createEntities(flecs::world& world)
                         MAX_POSITION_IN_SCREEN / 2 - 1);
                 moving.positionScreen = numPosition;
                 render.busyPositionScreen[numPosition] = flecs::id(e.id());
-                sf::Vector2f position;
-                unsigned rowNumber = numPosition / COLUMN_COUNT;
-                unsigned columnNumber = numPosition % COLUMN_COUNT;
-                position.x = float(SIZE_TANK) / 2 + float(columnNumber) * SIZE_TANK;
-                position.y = float(SIZE_TANK) / 2 + float(rowNumber) * SIZE_TANK;
+                sf::Vector2f position = getPositionCenter(numPosition);
                 sprite.setPosition(position);
                 setScaleTank(sprite);
                 setOriginCenter(sprite);
@@ -133,11 +125,7 @@ void createEntities(flecs::world& world)
                         0,
                         MAX_POSITION_IN_SCREEN - 1);
                 render.busyPositionScreen[numPosition] = flecs::id(e.id());
-                sf::Vector2f position;
-                unsigned rowNumber = numPosition / COLUMN_COUNT;
-                unsigned columnNumber = numPosition % COLUMN_COUNT;
-                position.x = float(SIZE_TANK) / 2 + float(columnNumber) * SIZE_TANK;
-                position.y = float(SIZE_TANK) / 2 + float(rowNumber) * SIZE_TANK;
+                sf::Vector2f position = getPositionCenter(numPosition);
                 sprite.setPosition(position);
                 setOriginCenter(sprite);
             });
@@ -146,7 +134,7 @@ void createEntities(flecs::world& world)
 void initWorld(flecs::world& world)
 {
     initDrawSystem(world);
-    initMovingSystem(world);
+    initMovingSystems(world);
     createEntities(world);
-    initControlObserver(world);
+    initControl(world);
 }

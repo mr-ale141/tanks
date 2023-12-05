@@ -11,9 +11,6 @@ constexpr unsigned ROW_COUNT = int(WINDOW_HEIGHT / SIZE_TANK);
 constexpr unsigned COLUMN_COUNT = int(WINDOW_WIDTH / SIZE_TANK);
 constexpr unsigned MAX_POSITION_IN_SCREEN = COLUMN_COUNT * ROW_COUNT;
 constexpr unsigned NUM_POSITION_USER = (ROW_COUNT - 1) * COLUMN_COUNT + COLUMN_COUNT / 2 - 1;
-const sf::Vector2f POSITION_USER = {
-        float(SIZE_TANK) / 2 + NUM_POSITION_USER % COLUMN_COUNT * SIZE_TANK,
-        float(SIZE_TANK) / 2 + NUM_POSITION_USER / COLUMN_COUNT * SIZE_TANK};
 
 struct User {};
 struct Enemy {};

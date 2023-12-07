@@ -46,7 +46,8 @@ void initCollision(flecs::world& world)
                                     collision.iCantMove = iSee(
                                             DIRECTIONS[directionSelf],
                                             positionSelf,
-                                            positionWall);
+                                            positionWall,
+                                            0.50);
                             });
 
 //                if (!collision.iCantMove)

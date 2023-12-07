@@ -66,8 +66,8 @@ void initRender(flecs::world& world) {
                           sf::Style::Default,
                           settings);
 
-    for (flecs::id &i : render.busyPositionScreen)
-        i = flecs::id(0ULL);
+    for (auto &i : render.busyPositionScreen)
+        i = false;
 
     world.set<Render>(render);
 }

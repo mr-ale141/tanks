@@ -35,7 +35,7 @@ struct Render {
     sf::Texture wallWoodTexture_1;
     sf::Texture wallWoodTexture_2;
     sf::RenderWindow* window;
-    flecs::id busyPositionScreen[MAX_POSITION_IN_SCREEN];
+    bool busyPositionScreen[MAX_POSITION_IN_SCREEN];
     sf::Clock clock;
 };
 

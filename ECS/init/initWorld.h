@@ -24,7 +24,7 @@ void createEntities(flecs::world& world)
                 moving.direction = UP;
                 moving.preTimeMoving = render.clock.getElapsedTime().asSeconds();
                 moving.positionScreen = NUM_POSITION_USER;
-                render.busyPositionScreen[moving.positionScreen] = flecs::id(e.id());
+                render.busyPositionScreen[moving.positionScreen] = true;
                 sprite.setTexture(render.userTexture);
                 setScaleTank(sprite);
                 setOriginCenter(sprite);
@@ -54,7 +54,7 @@ void createEntities(flecs::world& world)
                         0,
                         MAX_POSITION_IN_SCREEN / 2 - 1);
                 moving.positionScreen = numPosition;
-                render.busyPositionScreen[numPosition] = flecs::id(e.id());
+                render.busyPositionScreen[numPosition] = true;
                 sf::Vector2f position = getPositionCenter(numPosition);
                 sprite.setPosition(position);
                 setScaleTank(sprite);
@@ -82,7 +82,7 @@ void createEntities(flecs::world& world)
                         render,
                         0,
                         MAX_POSITION_IN_SCREEN - 1);
-                render.busyPositionScreen[numPosition] = flecs::id(e.id());
+                render.busyPositionScreen[numPosition] = true;
                 sf::Vector2f position = getPositionCenter(numPosition);
                 sprite.setPosition(position);
                 setOriginCenter(sprite);

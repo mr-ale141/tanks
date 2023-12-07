@@ -48723,7 +48723,7 @@ int ecs_primitive_to_expr_buf(
 #endif
 
 /**
- * @file expr/utils.c
+ * @file expr/init.c
  * @brief String parsing utilities.
  */
 

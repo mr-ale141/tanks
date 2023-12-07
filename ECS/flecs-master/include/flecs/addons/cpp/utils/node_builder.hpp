@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/node_builder.hpp
+ * @file addons/cpp/init/node_builder.hpp
  * @brief Base builder class for node objects, like systems, observers.
  */
 

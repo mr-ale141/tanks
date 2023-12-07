@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/stringstream.hpp
+ * @file addons/cpp/init/stringstream.hpp
  * @brief Wrapper around ecs_strbuf_t that provides a simple stringstream like API.
  */
 

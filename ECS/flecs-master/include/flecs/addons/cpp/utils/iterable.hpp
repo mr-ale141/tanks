@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/iterable.hpp
+ * @file addons/cpp/init/iterable.hpp
  * @brief Base class for iterable objects, like queries.
  */
 

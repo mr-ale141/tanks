@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/string.hpp
+ * @file addons/cpp/init/string.hpp
  * @brief String utility that doesn't implicitly allocate memory.
  */
 

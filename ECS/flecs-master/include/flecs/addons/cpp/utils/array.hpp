@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/array.hpp
+ * @file addons/cpp/init/array.hpp
  * @brief Array class.
  * 
  * Array class. Simple std::array like utility that is mostly there to aid

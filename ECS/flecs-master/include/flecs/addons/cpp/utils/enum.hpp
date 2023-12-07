@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/enum.hpp
+ * @file addons/cpp/init/enum.hpp
  * @brief Compile time enum reflection utilities.
  * 
  * Discover at compile time valid enumeration constants for an enumeration type

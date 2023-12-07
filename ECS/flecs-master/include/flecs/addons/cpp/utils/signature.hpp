@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/signature.hpp
+ * @file addons/cpp/init/signature.hpp
  * @brief Compile time utilities for deriving query attributes from param pack.
  */
 

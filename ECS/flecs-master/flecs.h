@@ -15915,7 +15915,7 @@ static const flecs::entity_t ScopeClose = EcsScopeClose;
 
 // C++ utilities
 /**
- * @file addons/cpp/utils/utils.hpp
+ * @file addons/cpp/init/init.hpp
  * @brief Flecs STL (FTL?)
  * 
  * Flecs STL (FTL?)
@@ -16061,7 +16061,7 @@ struct always_false {
 
 #include <stdlib.h>
 /**
- * @file addons/cpp/utils/array.hpp
+ * @file addons/cpp/init/array.hpp
  * @brief Array class.
  * 
  * Array class. Simple std::array like utility that is mostly there to aid
@@ -16174,7 +16174,7 @@ struct array<T, Size, enable_if_t<Size == 0>> final {
 }
 
 /**
- * @file addons/cpp/utils/string.hpp
+ * @file addons/cpp/init/string.hpp
  * @brief String utility that doesn't implicitly allocate memory.
  */
 
@@ -16318,7 +16318,7 @@ struct string_view : string {
 }
 
 /**
- * @file addons/cpp/utils/enum.hpp
+ * @file addons/cpp/init/enum.hpp
  * @brief Compile time enum reflection utilities.
  * 
  * Discover at compile time valid enumeration constants for an enumeration type
@@ -16614,7 +16614,7 @@ enum_data<E> enum_type(flecs::world_t *world) {
 } // namespace flecs
 
 /**
- * @file addons/cpp/utils/stringstream.hpp
+ * @file addons/cpp/init/stringstream.hpp
  * @brief Wrapper around ecs_strbuf_t that provides a simple stringstream like API.
  */
 
@@ -16661,7 +16661,7 @@ private:
 }
 
 /**
- * @file addons/cpp/utils/function_traits.hpp
+ * @file addons/cpp/init/function_traits.hpp
  * @brief Compile time utilities to inspect properties of functions.
  *
  * Code from: https://stackoverflow.com/questions/27024238/c-template-mechanism-to-get-the-number-of-function-arguments-which-would-work
@@ -25063,7 +25063,7 @@ using delegate = _::each_delegate<typename std::decay<Func>::type, Args...>;
 } // namespace flecs
 
 /**
- * @file addons/cpp/utils/iterable.hpp
+ * @file addons/cpp/init/iterable.hpp
  * @brief Base class for iterable objects, like queries.
  */
 
@@ -27042,7 +27042,7 @@ inline flecs::untyped_component world::component(Args &&... args) const {
 #pragma once
 
 /**
- * @file addons/cpp/utils/signature.hpp
+ * @file addons/cpp/init/signature.hpp
  * @brief Compile time utilities for deriving query attributes from param pack.
  */
 
@@ -27740,7 +27740,7 @@ inline flecs::term world::term() const {
 #pragma once
 
 /**
- * @file addons/cpp/utils/builder.hpp
+ * @file addons/cpp/init/builder.hpp
  * @brief Builder base class.
  * 
  * Generic functionality for builder classes.
@@ -28760,7 +28760,7 @@ inline query_base::operator query<>() const {
 #pragma once
 
 /**
- * @file addons/cpp/utils/node_builder.hpp
+ * @file addons/cpp/init/node_builder.hpp
  * @brief Base builder class for node objects, like systems, observers.
  */
 

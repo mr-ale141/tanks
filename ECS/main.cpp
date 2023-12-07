@@ -1,4 +1,4 @@
-#include "utils/initWorld.h"
+#include "init/initWorld.h"
 
 int main(int argc, char *argv[]) {
     flecs::world world(argc, argv);

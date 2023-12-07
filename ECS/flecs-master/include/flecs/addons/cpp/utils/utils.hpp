@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/utils.hpp
+ * @file addons/cpp/init/init.hpp
  * @brief Flecs STL (FTL?)
  * 
  * Flecs STL (FTL?)

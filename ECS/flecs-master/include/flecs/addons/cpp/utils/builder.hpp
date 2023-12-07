@@ -1,5 +1,5 @@
 /**
- * @file addons/cpp/utils/builder.hpp
+ * @file addons/cpp/init/builder.hpp
  * @brief Builder base class.
  * 
  * Generic functionality for builder classes.

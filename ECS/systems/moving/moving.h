@@ -1,15 +1,15 @@
 #pragma ONCE
-#include "../collision/collision.h"
+#include "../collision/collisional.h"
 
 void initMovingSystems(flecs::world& world)
 {
-    world.system<sf::Sprite, Moving, Collision, User, Render>()
+    world.system<sf::Sprite, Moving, Collisional, User, Render>()
             .term_at(5).singleton()
             .each([](
                     flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
-                    Collision& collision,
+                    Collisional& collision,
                     User,
                     Render& render) {
 
@@ -21,13 +21,13 @@ void initMovingSystems(flecs::world& world)
 
             }).add(flecs::OnUpdate);
 
-    world.system<sf::Sprite, Moving, Collision, Enemy, Render, Rand>()
+    world.system<sf::Sprite, Moving, Collisional, Enemy, Render, Rand>()
             .term_at(5).singleton()
             .term_at(6).singleton()
             .each([](
                     sf::Sprite& sprite,
                     Moving& moving,
-                    Collision& collision,
+                    Collisional& collision,
                     Enemy,
                     Render& render,
                     Rand& rand) {
@@ -46,21 +46,22 @@ void initMovingSystems(flecs::world& world)
                     moving.direction = directionEnum(rand.getRandomInt(0, 3));
                     moving.nextTimeDirection =
                             currentTime +
-                            SIZE_TANK *
-                            rand.getRandomInt(
+                            float(SIZE_TANK) *
+                            float(rand.getRandomInt(
                                     RANGE_RAND_DIRECTION.x,
-                                    RANGE_RAND_DIRECTION.y) /
+                                    RANGE_RAND_DIRECTION.y)) /
                             SPEED_ENEMY;
+                    fixPositionInRange(sprite);
                 }
             }).add(flecs::OnUpdate);
 
-    world.system<sf::Sprite, Moving, Collision, EnemyAI, Render, Rand>()
+    world.system<sf::Sprite, Moving, Collisional, EnemyAI, Render, Rand>()
             .term_at(5).singleton()
             .term_at(6).singleton()
             .each([](
                     sf::Sprite& sprite,
                     Moving& moving,
-                    Collision& collision,
+                    Collisional& collision,
                     EnemyAI,
                     Render& render,
                     Rand& rand) {
@@ -84,6 +85,7 @@ void initMovingSystems(flecs::world& world)
                                     RANGE_RAND_DIRECTION.x,
                                     RANGE_RAND_DIRECTION.y) /
                             SPEED_ENEMY_AI;
+                    fixPositionInRange(sprite);
                 }
             }).add(flecs::OnUpdate);
 

@@ -2,10 +2,6 @@
 #include <SFML/System.hpp>
 #include "../moving/moving.h"
 
-struct Control {
-    sf::Event event;
-};
-
 void initControl(flecs::world& world)
 {
     Control control;

@@ -3,13 +3,13 @@
 
 void createEntities(flecs::world& world)
 {
-    world.entity().add<User>().add<sf::Sprite>().add<Moving>().add<Collision>();
+    world.entity().add<User>().add<sf::Sprite>().add<Moving>().add<Collisional>();
 
     for (int i = 0; i < MAX_ENEMY; i++)
-        world.entity().add<Enemy>().add<sf::Sprite>().add<Moving>().add<Collision>();
+        world.entity().add<Enemy>().add<sf::Sprite>().add<Moving>().add<Collisional>();
 
     for (int i = 0; i < MAX_ENEMY_AI; i++)
-        world.entity().add<EnemyAI>().add<sf::Sprite>().add<Moving>().add<Collision>();
+        world.entity().add<EnemyAI>().add<sf::Sprite>().add<Moving>().add<Collisional>();
 
     for (int i = 0; i < MAX_WALL_WOOD; i++)
         world.entity().add<WallWood>().add<sf::Sprite>();
@@ -95,5 +95,5 @@ void initWorld(flecs::world& world)
     initMovingSystems(world);
     createEntities(world);
     initControl(world);
-    initCollision(world);
+    initCollisional(world);
 }

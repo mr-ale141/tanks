@@ -27,6 +27,10 @@ const float SPEED_ENEMY_AI = 20.f;
 const float SPEED_ENEMY = 40.f;
 const sf::Vector2i RANGE_RAND_DIRECTION = {1, 4};
 
+constexpr int USER_DAMAGE = 1;
+constexpr int ENEMY_DAMAGE = 1;
+constexpr int ENEMY_AI_DAMAGE = 1;
+
 const sf::Vector2f DIRECTIONS[4] = {
         { 0.f, -1.f },
         { 1.f, 0.f },

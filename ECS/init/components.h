@@ -19,9 +19,21 @@ struct Moving {
     unsigned positionScreen;
 };
 
-struct Collision {
+struct Collisional {
     bool iCantMove;
-    bool isHitMe;
+};
+
+struct destroying {
+    int damage;
+};
+
+struct destroyed {
+    bool isDestroyed;
+    int hp;
+};
+
+struct Control {
+    sf::Event event;
 };
 
 struct Render {

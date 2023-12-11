@@ -82,3 +82,28 @@ bool iSee(sf::Vector2f directionSelf, sf::Vector2f posSelf, sf::Vector2f posTarg
         iSee = true;
     return  iSee;
 }
+
+void fixPositionInRange(sf::Sprite& sprite)
+{
+    auto positionCurrent = sf::Vector2i(sprite.getPosition());
+    int modX = (positionCurrent.x - int(SIZE_TANK / 2)) % int(SIZE_TANK);
+    int modY = (positionCurrent.y - int(SIZE_TANK / 2)) % int(SIZE_TANK);
+
+    if(modX)
+    {
+        if (modX > int(SIZE_TANK / 2))
+        positionCurrent.x += int(SIZE_TANK) - modX;
+        else
+        positionCurrent.x -= modX;
+        sprite.setPosition(sf::Vector2f(positionCurrent));
+    }
+
+    if(modY)
+    {
+        if (modY > int(SIZE_TANK / 2))
+            positionCurrent.y += int(SIZE_TANK) - modY;
+        else
+            positionCurrent.y -= modY;
+        sprite.setPosition(sf::Vector2f(positionCurrent));
+    }
+}

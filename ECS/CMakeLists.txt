@@ -24,7 +24,7 @@ add_executable(
         init/initWorld.h
         systems/control/control.h
         systems/moving/moving.h
-        systems/collision/collision.h
+        systems/collision/collisional.h
         systems/render/render.h
         init/utils.h
         init/components.h

@@ -80,10 +80,10 @@ void initMovingSystems(flecs::world& world)
                     moving.direction = directionEnum(rand.getRandomInt(0, 3));
                     moving.nextTimeDirection =
                             currentTime +
-                            SIZE_TANK *
-                            rand.getRandomInt(
+                            float(SIZE_TANK) *
+                            float(rand.getRandomInt(
                                     RANGE_RAND_DIRECTION.x,
-                                    RANGE_RAND_DIRECTION.y) /
+                                    RANGE_RAND_DIRECTION.y)) /
                             SPEED_ENEMY_AI;
                     fixPositionInRange(sprite);
                 }

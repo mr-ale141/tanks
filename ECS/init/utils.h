@@ -21,6 +21,12 @@ void setOriginCenter(sf::Sprite& sprite)
     sprite.setOrigin({ size.width / 2, size.height / 2 });
 }
 
+void setOriginUpCenter(sf::Sprite& sprite)
+{
+    sf::FloatRect size = sprite.getGlobalBounds();
+    sprite.setOrigin({ size.width / 2, 0 });
+}
+
 unsigned getFreePosition(Rand& rand, Render& render, int minNumPosition, int maxNumPosition)
 {
     const int MAX_TRYING = 500;
@@ -105,5 +111,45 @@ void fixPositionInRange(sf::Sprite& sprite)
         else
             positionCurrent.y -= modY;
         sprite.setPosition(sf::Vector2f(positionCurrent));
+    }
+}
+
+void shootUser(flecs::iter& it, size_t index, sf::Sprite& spriteUser, Moving& moving, User& user)
+{
+    auto render = it.world().get<Render>();
+    float currentTime = render->clock.getElapsedTime().asSeconds();
+
+    if (currentTime > user.nextTimeShoot)
+    {
+        user.nextTimeShoot = currentTime + 1 / SHOOT_SPEED_USER;
+
+        Bullet bullet = {
+                .isUser = true,
+                .damage = USER_DAMAGE,
+        };
+
+        sf::Sprite spriteBullet;
+        spriteBullet.setTexture(render->userBulletTexture);
+        setOriginUpCenter(spriteBullet);
+        setDirection(spriteBullet, moving.direction);
+        sf::Vector2f pos = spriteUser.getPosition();
+        spriteBullet.setPosition(pos);
+
+        Moving movingBullet = {
+                .direction = moving.direction,
+                .speed = SPEED_BULLET,
+                .nextTimeDirection = float(INT_MAX),
+                .preTimeMoving = currentTime
+        };
+
+        Collisional collisionalBullet = {
+                .iCantMove = false
+        };
+
+        it.world().entity()
+                .set<Bullet>(bullet)
+                .set<sf::Sprite>(spriteBullet)
+                .set<Moving>(movingBullet)
+                .set<Collisional>(collisionalBullet);
     }
 }

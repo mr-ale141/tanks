@@ -27,6 +27,15 @@ const float SPEED_ENEMY_AI = 20.f;
 const float SPEED_ENEMY = 40.f;
 const sf::Vector2i RANGE_RAND_DIRECTION = {1, 4};
 
+constexpr float SPEED_BULLET = 300.f;
+
+const float SHOOT_SPEED_USER = 2.f;
+const float SHOOT_SPEED_ENEMY = 1.f / 3.f;
+const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
+const int HP_USER = 3;
+const int HP_ENEMY = 1;
+const int HP_ENEMY_AI = 2;
+
 constexpr int USER_DAMAGE = 1;
 constexpr int ENEMY_DAMAGE = 1;
 constexpr int ENEMY_AI_DAMAGE = 1;

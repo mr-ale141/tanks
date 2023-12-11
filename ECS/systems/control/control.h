@@ -24,8 +24,8 @@ void initControl(flecs::world& world)
                 }
             }).add(flecs::PreUpdate);
 
-    world.system<Moving, User>()
-            .each([](Moving& moving, User) {
+    world.system<sf::Sprite, Moving, User>()
+            .each([&](flecs::iter& it, size_t index, sf::Sprite& spriteUser, Moving& moving, User& user) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 {
                     moving.speed = SPEED_USER;
@@ -50,6 +50,7 @@ void initControl(flecs::world& world)
                     moving.speed = 0;
 
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-                    ;
+                    shootUser(it, index, spriteUser, moving, user);
+
             }).add(flecs::PreUpdate);
 }

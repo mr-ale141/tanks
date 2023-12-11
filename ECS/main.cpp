@@ -18,5 +18,4 @@ int main(int argc, char *argv[]) {
     while (render->window->isOpen()) {
         world.progress();
     }
-
 }

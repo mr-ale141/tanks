@@ -1,15 +1,26 @@
 #pragma ONCE
 #include "config.h"
 
-struct User {};
+struct User {
+    float nextTimeShoot;
+};
 
-struct Enemy {};
+struct Enemy {
+    float nextTimeShoot;
+};
 
-struct EnemyAI {};
+struct EnemyAI {
+    float nextTimeShoot;
+};
 
 struct WallWood {};
 
 struct WallMetal {};
+
+struct Bullet {
+    bool isUser;
+    int damage;
+};
 
 struct Moving {
     directionEnum direction;
@@ -21,6 +32,7 @@ struct Moving {
 
 struct Collisional {
     bool iCantMove;
+    bool iOverScreen;
 };
 
 struct destroying {

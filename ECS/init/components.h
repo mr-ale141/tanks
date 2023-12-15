@@ -30,7 +30,7 @@ struct Moving {
     float speed = 0.f;
     float nextTimeDirection = TIME_WAITING;
     float preTimeMoving;
-    unsigned positionScreen;
+    unsigned numPositionScreen;
 };
 
 struct Collisional {

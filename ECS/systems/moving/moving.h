@@ -3,20 +3,28 @@
 
 void initMovingSystems(flecs::world& world)
 {
-    world.system<sf::Sprite, Moving, Collisional, User, Render>()
-            .term_at(5).singleton()
+    world.system<sf::Sprite, Moving, Collisional, Render>()
+            .term<Bullet>().oper(flecs::Not)
+            .term_at(4).singleton()
             .each([](
                     flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
-                    Collisional& collision,
-                    User,
+                    Collisional& collisional,
                     Render& render) {
 
-                if (collision.iCantMove)
+                if (collisional.iCantMove)
                 {
                     moving.speed = 0.f;
-                    collision.iCantMove = false;
+                    float now = 0.f;
+                    moving.nextTimeDirection = now;
+                }
+                else
+                {
+                    if (e.has<Enemy>())
+                        moving.speed = SPEED_ENEMY;
+                    else if (e.has<EnemyAI>())
+                        moving.speed = SPEED_ENEMY_AI;
                 }
 
             }).add(flecs::OnUpdate);
@@ -39,19 +47,6 @@ void initMovingSystems(flecs::world& world)
                     speed = SPEED_ENEMY;
                 else if (e.has<EnemyAI>())
                     speed = SPEED_ENEMY_AI;
-
-                if (!collisional.iCantMove)
-                {
-                    if (e.has<Enemy>())
-                        moving.speed = SPEED_ENEMY;
-                    else if (e.has<EnemyAI>())
-                        moving.speed = SPEED_ENEMY_AI;
-                } else if (!e.has<User>() && !e.has<Bullet>())
-                {
-                    moving.speed = 0.f;
-                    float now = 0.f;
-                    moving.nextTimeDirection = now;
-                }
 
                 if (!e.has<User>() && currentTime >= moving.nextTimeDirection) {
                     moving.direction = directionEnum(rand.getRandomInt(0, 3));

@@ -1,0 +1,14 @@
+control - PreUpdate
+    closeWindow
+    user
+collisional  - PreUpdate
+    updateICantMoveAndShootAllEnemies
+    destroyEntitiesAndBullets
+moving - OnUpdate
+    updateSpeeds
+    updateDirections
+    updatePositions
+render
+    clear - PostUpdate
+    draw - PreStore
+    show - OnStore

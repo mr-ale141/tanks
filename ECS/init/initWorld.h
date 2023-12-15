@@ -15,9 +15,9 @@ void createUser(flecs::world& world)
     moving.speed = 0.f;
     moving.nextTimeDirection = 0.f;
     moving.preTimeMoving = render->clock.getElapsedTime().asSeconds();
-    moving.positionScreen = NUM_POSITION_USER;
+    moving.numPositionScreen = NUM_POSITION_USER;
     collisional.iCantMove = true;
-    render->busyPositionScreen[moving.positionScreen] = true;
+    render->busyPositionScreen[moving.numPositionScreen] = true;
     sprite.setTexture(render->userTexture);
     setScaleTank(sprite);
     setOriginCenter(sprite);
@@ -49,11 +49,11 @@ void createEnemies(flecs::world& world)
                 *render,
                 0,
                 MAX_POSITION_IN_SCREEN / 2 - 1);
-        moving.positionScreen = numPosition;
-        render->busyPositionScreen[moving.positionScreen] = true;
+        moving.numPositionScreen = numPosition;
+        render->busyPositionScreen[moving.numPositionScreen] = true;
         setDirection(sprite, moving.direction);
         sprite.setTexture(render->enemyTexture);
-        sf::Vector2f position = getPositionCenter(moving.positionScreen);
+        sf::Vector2f position = getPositionCenter(moving.numPositionScreen);
         sprite.setPosition(position);
         setScaleTank(sprite);
         setOriginCenter(sprite);
@@ -83,11 +83,11 @@ void createEnemiesAI(flecs::world& world)
                 *render,
                 0,
                 MAX_POSITION_IN_SCREEN / 2 - 1);
-        moving.positionScreen = numPosition;
-        render->busyPositionScreen[moving.positionScreen] = true;
+        moving.numPositionScreen = numPosition;
+        render->busyPositionScreen[moving.numPositionScreen] = true;
         setDirection(sprite, moving.direction);
         sprite.setTexture(render->enemyAiTexture);
-        sf::Vector2f position = getPositionCenter(moving.positionScreen);
+        sf::Vector2f position = getPositionCenter(moving.numPositionScreen);
         setScaleTank(sprite);
         setOriginCenter(sprite);
         sprite.setPosition(position);
@@ -146,11 +146,96 @@ void createEntities(flecs::world& world)
     createWallMetal(world);
 }
 
+void initRender(flecs::world& world) {
+    Render render;
+
+    if (!render.userTexture.loadFromFile("../sprites/user.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/user.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.enemyTexture.loadFromFile("../sprites/enemy.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/enemy.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.enemyAiTexture.loadFromFile("../sprites/enemy_ai.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/enemy_ai.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.userBulletTexture.loadFromFile("../sprites/bullet_user.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/bullet_user.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.enemyBulletTexture.loadFromFile("../sprites/bullet_enemy.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/bullet_enemy.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.wallMetalTexture.loadFromFile("../sprites/wall_metal.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/wall_metal.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.wallWoodTexture_0.loadFromFile("../sprites/wall_wood_0.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/wall_wood_0.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.wallWoodTexture_1.loadFromFile("../sprites/wall_wood_1.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/wall_wood_1.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.wallWoodTexture_2.loadFromFile("../sprites/wall_wood_2.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/wall_wood_2.png\"!!!\n";
+        exit(1);
+    }
+
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+    render.window = new sf::RenderWindow;
+    render.window->create(sf::VideoMode({ WINDOW_WIDTH, WINDOW_HEIGHT }),
+                          "Tanks",
+                          sf::Style::Default,
+                          settings);
+
+    for (auto &i : render.busyPositionScreen)
+        i = false;
+
+    world.set<Render>(render);
+}
+
+void initRand(flecs::world& world)
+{
+    Rand rand;
+    rand.initGenerator();
+    world.set<Rand>(rand);
+}
+
+void initSingletons(flecs::world& world)
+{
+    initRender(world);
+    initRand(world);
+}
+
 void initWorld(flecs::world& world)
 {
-    initDrawSystem(world);
+    initSingletons(world);
+    initRenderSystems(world);
     initMovingSystems(world);
     createEntities(world);
-    initControl(world);
-    initCollisional(world);
+    initControlSystems(world);
+    initCollisionalSystems(world);
 }

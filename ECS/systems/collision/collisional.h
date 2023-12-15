@@ -1,7 +1,7 @@
 #pragma ONCE
 #include "../render/render.h"
 
-void initCollisional(flecs::world& world)
+void initCollisionalSystems(flecs::world& world)
 {
     world.system<sf::Sprite, Moving, Collisional>()
         .term<Bullet>().oper(flecs::Not)

@@ -2,7 +2,7 @@
 #include <SFML/System.hpp>
 #include "../moving/moving.h"
 
-void initControl(flecs::world& world)
+void initControlSystems(flecs::world& world)
 {
 
     world.system<Render>()

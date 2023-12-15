@@ -31,8 +31,7 @@ void initCollisional(flecs::world& world)
                     if (module != 0 && eTarget.has<User>() && iSee(
                             DIRECTIONS[directionSelf],
                             positionSelf,
-                            positionTarget,
-                            0.99))
+                            positionTarget))
                         if (it.entity(index).has<Enemy>())
                             shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));
                         else if (it.entity(index).has<EnemyAI>())

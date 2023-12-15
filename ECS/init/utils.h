@@ -153,3 +153,83 @@ void shootUser(flecs::iter& it, size_t index, sf::Sprite& spriteUser, Moving& mo
                 .set<Collisional>(collisionalBullet);
     }
 }
+
+void shootEnemy(flecs::iter& it, size_t index, sf::Sprite& spriteEnemy, Moving& moving, Enemy& enemy)
+{
+    auto render = it.world().get<Render>();
+    float currentTime = render->clock.getElapsedTime().asSeconds();
+
+    if (currentTime > enemy.nextTimeShoot)
+    {
+        enemy.nextTimeShoot = currentTime + 1 / SHOOT_SPEED_ENEMY;
+
+        Bullet bullet = {
+                .isUser = false,
+                .damage = ENEMY_DAMAGE,
+        };
+
+        sf::Sprite spriteBullet;
+        spriteBullet.setTexture(render->enemyBulletTexture);
+        setOriginUpCenter(spriteBullet);
+        setDirection(spriteBullet, moving.direction);
+        sf::Vector2f pos = spriteEnemy.getPosition();
+        spriteBullet.setPosition(pos);
+
+        Moving movingBullet = {
+                .direction = moving.direction,
+                .speed = SPEED_BULLET,
+                .nextTimeDirection = float(INT_MAX),
+                .preTimeMoving = currentTime
+        };
+
+        Collisional collisionalBullet = {
+                .iCantMove = false
+        };
+
+        it.world().entity()
+                .set<Bullet>(bullet)
+                .set<sf::Sprite>(spriteBullet)
+                .set<Moving>(movingBullet)
+                .set<Collisional>(collisionalBullet);
+    }
+}
+
+void shootEnemyAI(flecs::iter& it, size_t index, sf::Sprite& spriteEnemyAI, Moving& moving, EnemyAI& enemyAI)
+{
+    auto render = it.world().get<Render>();
+    float currentTime = render->clock.getElapsedTime().asSeconds();
+
+    if (currentTime > enemyAI.nextTimeShoot)
+    {
+        enemyAI.nextTimeShoot = currentTime + 1 / SHOOT_SPEED_ENEMY_AI;
+
+        Bullet bullet = {
+                .isUser = false,
+                .damage = ENEMY_AI_DAMAGE,
+        };
+
+        sf::Sprite spriteBullet;
+        spriteBullet.setTexture(render->enemyBulletTexture);
+        setOriginUpCenter(spriteBullet);
+        setDirection(spriteBullet, moving.direction);
+        sf::Vector2f pos = spriteEnemyAI.getPosition();
+        spriteBullet.setPosition(pos);
+
+        Moving movingBullet = {
+                .direction = moving.direction,
+                .speed = SPEED_BULLET,
+                .nextTimeDirection = float(INT_MAX),
+                .preTimeMoving = currentTime
+        };
+
+        Collisional collisionalBullet = {
+                .iCantMove = false
+        };
+
+        it.world().entity()
+                .set<Bullet>(bullet)
+                .set<sf::Sprite>(spriteBullet)
+                .set<Moving>(movingBullet)
+                .set<Collisional>(collisionalBullet);
+    }
+}

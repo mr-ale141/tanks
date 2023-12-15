@@ -21,28 +21,39 @@ void initMovingSystems(flecs::world& world)
 
             }).add(flecs::OnUpdate);
 
-    world.system<sf::Sprite, Moving, Collisional, Enemy, Render, Rand>()
+    world.system<sf::Sprite, Moving, Collisional, Render, Rand>()
+            .term_at(4).singleton()
             .term_at(5).singleton()
-            .term_at(6).singleton()
             .each([](
+                    flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
-                    Collisional& collision,
-                    Enemy,
+                    Collisional& collisional,
                     Render& render,
                     Rand& rand) {
 
                 float currentTime = render.clock.getElapsedTime().asSeconds();
 
-                if (collision.iCantMove)
+                float speed;
+                if (e.has<Enemy>())
+                    speed = SPEED_ENEMY;
+                else if (e.has<EnemyAI>())
+                    speed = SPEED_ENEMY_AI;
+
+                if (!collisional.iCantMove)
+                {
+                    if (e.has<Enemy>())
+                        moving.speed = SPEED_ENEMY;
+                    else if (e.has<EnemyAI>())
+                        moving.speed = SPEED_ENEMY_AI;
+                } else if (!e.has<User>() && !e.has<Bullet>())
                 {
                     moving.speed = 0.f;
-                    collision.iCantMove = false;
-                    moving.nextTimeDirection = currentTime;
+                    float now = 0.f;
+                    moving.nextTimeDirection = now;
                 }
 
-                if (currentTime >= moving.nextTimeDirection) {
-                    moving.speed = SPEED_ENEMY;
+                if (!e.has<User>() && currentTime >= moving.nextTimeDirection) {
                     moving.direction = directionEnum(rand.getRandomInt(0, 3));
                     moving.nextTimeDirection =
                             currentTime +
@@ -50,41 +61,8 @@ void initMovingSystems(flecs::world& world)
                             float(rand.getRandomInt(
                                     RANGE_RAND_DIRECTION.x,
                                     RANGE_RAND_DIRECTION.y)) /
-                            SPEED_ENEMY;
-                    fixPositionInRange(sprite);
-                }
-            }).add(flecs::OnUpdate);
-
-    world.system<sf::Sprite, Moving, Collisional, EnemyAI, Render, Rand>()
-            .term_at(5).singleton()
-            .term_at(6).singleton()
-            .each([](
-                    sf::Sprite& sprite,
-                    Moving& moving,
-                    Collisional& collision,
-                    EnemyAI,
-                    Render& render,
-                    Rand& rand) {
-
-                float currentTime = render.clock.getElapsedTime().asSeconds();
-
-                if (collision.iCantMove)
-                {
-                    moving.speed = 0.f;
-                    collision.iCantMove = false;
-                    moving.nextTimeDirection = currentTime;
-                }
-
-                if (currentTime >= moving.nextTimeDirection) {
-                    moving.speed = SPEED_ENEMY_AI;
-                    moving.direction = directionEnum(rand.getRandomInt(0, 3));
-                    moving.nextTimeDirection =
-                            currentTime +
-                            float(SIZE_TANK) *
-                            float(rand.getRandomInt(
-                                    RANGE_RAND_DIRECTION.x,
-                                    RANGE_RAND_DIRECTION.y)) /
-                            SPEED_ENEMY_AI;
+                            speed;
+                    setDirection(sprite, moving.direction);
                     fixPositionInRange(sprite);
                 }
             }).add(flecs::OnUpdate);
@@ -92,11 +70,9 @@ void initMovingSystems(flecs::world& world)
     world.system<sf::Sprite, Moving, Render>()
             .term_at(3).singleton()
             .each([](
-                    flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
                     Render& render) {
-                setDirection(sprite, moving.direction);
                 float currentTime = render.clock.getElapsedTime().asSeconds();
                 float deltaTime = currentTime - moving.preTimeMoving;
                 float offset = moving.speed * deltaTime;

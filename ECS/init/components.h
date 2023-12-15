@@ -3,14 +3,17 @@
 
 struct User {
     float nextTimeShoot;
+    int hp;
 };
 
 struct Enemy {
     float nextTimeShoot;
+    int hp;
 };
 
 struct EnemyAI {
     float nextTimeShoot;
+    int hp;
 };
 
 struct WallWood {};
@@ -32,20 +35,6 @@ struct Moving {
 
 struct Collisional {
     bool iCantMove;
-    bool iOverScreen;
-};
-
-struct destroying {
-    int damage;
-};
-
-struct destroyed {
-    bool isDestroyed;
-    int hp;
-};
-
-struct Control {
-    sf::Event event;
 };
 
 struct Render {

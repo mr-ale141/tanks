@@ -4,16 +4,14 @@
 
 void initControl(flecs::world& world)
 {
-    Control control;
-    world.set<Control>(control);
 
-    world.system<Render, Control>()
+    world.system<Render>()
             .term_at(1).singleton()
-            .term_at(2).singleton()
-            .each([](Render& render, Control& control) {
-                while(render.window->pollEvent(control.event))
+            .each([](Render& render) {
+                sf::Event event = {};
+                while(render.window->pollEvent(event))
                 {
-                    switch (control.event.type)
+                    switch (event.type)
                     {
                         case sf::Event::Closed:
                             render.window->close();
@@ -26,7 +24,10 @@ void initControl(flecs::world& world)
 
     world.system<sf::Sprite, Moving, User>()
             .each([&](flecs::iter& it, size_t index, sf::Sprite& spriteUser, Moving& moving, User& user) {
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+                directionEnum oldDirection = moving.direction;
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+                    shootUser(it, index, spriteUser, moving, user);
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 {
                     moving.speed = SPEED_USER;
                     moving.direction = UP;
@@ -49,8 +50,11 @@ void initControl(flecs::world& world)
                 else
                     moving.speed = 0;
 
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-                    shootUser(it, index, spriteUser, moving, user);
+                if (oldDirection != moving.direction)
+                {
+                    setDirection(spriteUser, moving.direction);
+                    fixPositionInRange(spriteUser);
+                }
 
             }).add(flecs::PreUpdate);
 }

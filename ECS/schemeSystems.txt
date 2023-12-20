@@ -1,25 +1,27 @@
 OnLoad
-    controlCloseWindow
-    controlUser
++   controlCloseWindow
++   controlUser
 PostLoad
-    updateICantMove
-    updateDamage
-    createBullets
-    createFire
++   updateICantMove
+        createBullets
++   updateBullets
+        updateLive
+        destroyBullets
+        createFire
 PreUpdate
-    destroyEntities
-    destroyFire
-    destroyBullets
++   destroyEntities
 OnUpdate
-    updateSpeeds
-    updateDirections
-    updatePositions
-    updateFire
++   updateSpeeds
++   updateDirections
++   updatePositions
++   updateFire
+        destroyFire
++   updateWallWood
 OnValidate
-    updateBusyPositions
++   updateBusyPositions
 PostUpdate
-    clearDisplay
++   clearDisplay
 PreStore
-    drawDisplay
++   drawDisplay
 OnStore
-    showDisplay
++   showDisplay

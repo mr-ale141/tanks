@@ -7,9 +7,10 @@ void createUser(flecs::world& world)
     sf::Sprite sprite;
     Moving moving = {};
     Collisional collisional = {};
+    Live live = {};
+    live.hp = HP_USER;
     auto render = world.get_mut<Render>();
 
-    user.hp = HP_USER;
     user.nextTimeShoot = 0.f;
     moving.direction = UP;
     moving.speed = 0.f;
@@ -24,7 +25,7 @@ void createUser(flecs::world& world)
     sprite.setPosition(getPositionCenter(NUM_POSITION_USER));
     setDirection(sprite, moving.direction);
 
-    world.entity().set<User>(user).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional);
+    world.entity().set<User>(user).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
 }
 
 void createEnemies(flecs::world& world)
@@ -37,7 +38,8 @@ void createEnemies(flecs::world& world)
         sf::Sprite sprite;
         Moving moving = {};
         Collisional collisional = {};
-        enemy.hp = HP_ENEMY;
+        Live live = {};
+        live.hp = HP_ENEMY;
         enemy.nextTimeShoot = 0.f;
         moving.speed = 0.f;
         moving.nextTimeDirection = 0.f;
@@ -57,7 +59,7 @@ void createEnemies(flecs::world& world)
         sprite.setPosition(position);
         setScaleTank(sprite);
         setOriginCenter(sprite);
-        world.entity().set<Enemy>(enemy).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional);
+        world.entity().set<Enemy>(enemy).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
     }
 }
 
@@ -71,7 +73,8 @@ void createEnemiesAI(flecs::world& world)
         sf::Sprite sprite;
         Moving moving = {};
         Collisional collisional = {};
-        enemyAI.hp = HP_ENEMY_AI;
+        Live live = {};
+        live.hp = HP_ENEMY_AI;
         enemyAI.nextTimeShoot = 0.f;
         moving.speed = 0.f;
         moving.nextTimeDirection = 0.f;
@@ -91,7 +94,7 @@ void createEnemiesAI(flecs::world& world)
         setScaleTank(sprite);
         setOriginCenter(sprite);
         sprite.setPosition(position);
-        world.entity().set<EnemyAI>(enemyAI).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional);
+        world.entity().set<EnemyAI>(enemyAI).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
     }
 }
 
@@ -99,8 +102,11 @@ void createWallWoods(flecs::world& world)
 {
     auto render = world.get_mut<Render>();
     auto rand = world.get_mut<Rand>();
+    const int HP_WALL_WOOD = 3;
     for (int i = 0; i < MAX_WALL_WOOD; i++)
     {
+        Live live = {};
+        live.hp = HP_WALL_WOOD;
         sf::Sprite sprite;
         sprite.setTexture(render->wallWoodTexture_0);
         unsigned numPosition = getFreePosition(
@@ -112,7 +118,7 @@ void createWallWoods(flecs::world& world)
         sf::Vector2f position = getPositionCenter(numPosition);
         sprite.setPosition(position);
         setOriginCenter(sprite);
-        world.entity().add<WallWood>().set<sf::Sprite>(sprite);
+        world.entity().add<WallWood>().set<sf::Sprite>(sprite).set<Live>(live);
     }
 }
 
@@ -201,6 +207,21 @@ void initRender(flecs::world& world) {
     {
         std::cout << "Error: I can't read texture \"../sprites/wall_wood_2.png\"!!!\n";
         exit(1);
+    }
+
+    for (int i = 0; i < COUNT_COLUMN_TEXTURE_FIRE; i++)
+    {
+        sf::IntRect positionInTexture = {
+                i * SIZE_TEXTURE_FIRE,
+                0,
+                SIZE_TEXTURE_FIRE,
+                SIZE_TEXTURE_FIRE
+        };
+        if (!render.fire[i].loadFromFile("../sprites/fire.png", positionInTexture))
+        {
+            std::cout << "Error: I can't read texture \"../sprites/fire.png\"!!!\n";
+            exit(1);
+        }
     }
 
     sf::ContextSettings settings;

@@ -3,26 +3,32 @@
 
 struct User {
     float nextTimeShoot;
-    int hp;
 };
 
 struct Enemy {
     float nextTimeShoot;
-    int hp;
 };
 
 struct EnemyAI {
     float nextTimeShoot;
-    int hp;
 };
 
 struct WallWood {};
 
 struct WallMetal {};
 
+struct Fire {
+    int indexTexture;
+    float preTimeUpdate;
+};
+
 struct Bullet {
     bool isUser;
     int damage;
+};
+
+struct Live {
+    int hp;
 };
 
 struct Moving {
@@ -47,6 +53,7 @@ struct Render {
     sf::Texture wallWoodTexture_0;
     sf::Texture wallWoodTexture_1;
     sf::Texture wallWoodTexture_2;
+    sf::Texture fire[COUNT_COLUMN_TEXTURE_FIRE];
     sf::RenderWindow* window;
     bool busyPositionScreen[MAX_POSITION_IN_SCREEN];
     sf::Clock clock;

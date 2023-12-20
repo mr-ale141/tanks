@@ -3,7 +3,7 @@
 
 void initMovingSystems(flecs::world& world)
 {
-    world.system<sf::Sprite, Moving, Collisional, Render>()
+    auto updateSpeeds = world.system<sf::Sprite, Moving, Collisional, Render>()
             .term<Bullet>().oper(flecs::Not)
             .term_at(4).singleton()
             .each([](
@@ -27,9 +27,9 @@ void initMovingSystems(flecs::world& world)
                         moving.speed = SPEED_ENEMY_AI;
                 }
 
-            }).add(flecs::OnUpdate);
+            });
 
-    world.system<sf::Sprite, Moving, Collisional, Render, Rand>()
+    auto updateDirections = world.system<sf::Sprite, Moving, Collisional, Render, Rand>()
             .term_at(4).singleton()
             .term_at(5).singleton()
             .each([](
@@ -60,9 +60,9 @@ void initMovingSystems(flecs::world& world)
                     setDirection(sprite, moving.direction);
                     fixPositionInRange(sprite);
                 }
-            }).add(flecs::OnUpdate);
+            });
 
-    world.system<sf::Sprite, Moving, Render>()
+    auto updatePositions = world.system<sf::Sprite, Moving, Render>()
             .term_at(3).singleton()
             .each([](
                     sf::Sprite& sprite,
@@ -75,5 +75,55 @@ void initMovingSystems(flecs::world& world)
                 sf::Vector2f newPosition = sprite.getPosition() + offsetPosition;
                 sprite.setPosition(newPosition);
                 moving.preTimeMoving = currentTime;
-            }).add(flecs::OnUpdate);
+            });
+
+    auto updateFire = world.system<sf::Sprite, Fire, Render>()
+            .term_at(3).singleton()
+            .each([](flecs::entity e, sf::Sprite& sprite, Fire& fire, Render& render) {
+                float currTime = render.clock.getElapsedTime().asSeconds();
+                float dt = currTime - fire.preTimeUpdate;
+                if (dt > STEP_UPDATE_FIRE)
+                {
+                    if (fire.indexTexture < COUNT_COLUMN_TEXTURE_FIRE)
+                    {
+                        sprite.setTexture(render.fire[fire.indexTexture]);
+                        setOriginCenter(sprite);
+                        fire.preTimeUpdate = currTime;
+                        fire.indexTexture++;
+                    }
+                    else
+                        e.destruct();
+                }
+            });
+
+    auto updateWallWood = world.system<sf::Sprite, WallWood, Live, Render>()
+            .term_at(4).singleton()
+            .each([](flecs::entity e, sf::Sprite& sprite, WallWood, Live& live, Render& render) {
+                if (live.hp == 2)
+                    sprite.setTexture(render.wallWoodTexture_1);
+                else if (live.hp == 1)
+                    sprite.setTexture(render.wallWoodTexture_2);
+            });
+
+    auto updateBusyPosition = world.system<Moving, sf::Sprite, Render>()
+            .term<Bullet>().oper(flecs::Not)
+            .term_at(3).singleton()
+            .each([](Moving& moving, sf::Sprite& sprite, Render& render) {
+                auto currentPosition = sprite.getPosition();
+                auto oldNum = moving.numPositionScreen;
+                auto newNum = getNumPosition(currentPosition);
+                if (oldNum != newNum)
+                {
+                    render.busyPositionScreen[oldNum] = false;
+                    render.busyPositionScreen[newNum] = true;
+                    moving.numPositionScreen = newNum;
+                }
+            });
+
+    updateSpeeds.add(flecs::OnUpdate);
+    updateDirections.add(flecs::OnUpdate);
+    updatePositions.add(flecs::OnUpdate);
+    updateFire.add(flecs::OnUpdate);
+    updateWallWood.add(flecs::OnUpdate);
+    updateBusyPosition.add(flecs::OnValidate);
 }

@@ -74,6 +74,38 @@ sf::Vector2f getPositionCenter(unsigned numPosition)
     return position;
 }
 
+unsigned getNumPosition(sf::Vector2f position)
+{
+    auto column = unsigned(position.x / float(SIZE_TANK));
+    auto row = unsigned(position.y / float(SIZE_TANK));
+    unsigned numPosition = row * COLUMN_COUNT + column;
+    return numPosition;
+}
+
+bool checkBarriers(const Render* render, directionEnum directionEnemy, unsigned numPositionEnemy, unsigned numPositionUser)
+{
+    unsigned checkNum = numPositionEnemy;
+    do {
+        switch (directionEnemy) {
+            case UP:
+                checkNum -= COLUMN_COUNT;
+                break;
+            case LEFT:
+                checkNum--;
+                break;
+            case RIGHT:
+                checkNum++;
+                break;
+            case DOWN:
+                checkNum += COLUMN_COUNT;
+                break;
+        }
+        if (checkNum < 0 || checkNum > MAX_POSITION_IN_SCREEN)
+            return false;
+    } while (!render->busyPositionScreen[checkNum]);
+    return checkNum == numPositionUser;
+}
+
 bool iSee(sf::Vector2f directionSelf, sf::Vector2f posSelf, sf::Vector2f posTarget, float sector = SECTOR_VIEW)
 {
     bool iSee = false;

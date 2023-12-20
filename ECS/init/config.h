@@ -11,7 +11,7 @@ constexpr unsigned MAX_ENEMY_AI = 5;
 constexpr unsigned MAX_WALL_WOOD = 80;
 constexpr unsigned MAX_WALL_METAL = 40;
 
-const float SECTOR_VIEW = 0.99;
+const float SECTOR_VIEW = 0.999;
 const float TIME_WAITING = 0.f;
 
 constexpr unsigned WINDOW_WIDTH = 800;
@@ -36,6 +36,10 @@ const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
 const int HP_USER = 3;
 const int HP_ENEMY = 1;
 const int HP_ENEMY_AI = 2;
+
+const int COUNT_COLUMN_TEXTURE_FIRE = 16;
+const int SIZE_TEXTURE_FIRE = 64;
+const float STEP_UPDATE_FIRE = 0.05;
 
 constexpr int USER_DAMAGE = 1;
 constexpr int ENEMY_DAMAGE = 1;

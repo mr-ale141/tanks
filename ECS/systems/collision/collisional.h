@@ -3,7 +3,7 @@
 
 void initCollisionalSystems(flecs::world& world)
 {
-    world.system<sf::Sprite, Moving, Collisional>()
+    auto updateICantMove = world.system<sf::Sprite, Moving, Collisional>()
         .term<Bullet>().oper(flecs::Not)
         .each([&world](
                 flecs::iter& it,
@@ -32,10 +32,15 @@ void initCollisionalSystems(flecs::world& world)
                             DIRECTIONS[directionSelf],
                             positionSelf,
                             positionTarget))
-                        if (it.entity(index).has<Enemy>())
-                            shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));
-                        else if (it.entity(index).has<EnemyAI>())
-                            shootEnemyAI(it, index, spriteSelf, moving, *(it.entity(index).get_mut<EnemyAI>()));
+                    {
+                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(spriteTarget.getPosition())))
+                        {
+                            if (it.entity(index).has<Enemy>())
+                                shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));
+                            else if (it.entity(index).has<EnemyAI>())
+                                shootEnemyAI(it, index, spriteSelf, moving, *(it.entity(index).get_mut<EnemyAI>()));
+                        }
+                    }
                 });
 
             if (!collisional.iCantMove)
@@ -48,9 +53,9 @@ void initCollisionalSystems(flecs::world& world)
                 else if (positionSelf.y > WINDOW_HEIGHT - float(SIZE_TANK) / 2 && directionSelf == DOWN)
                     collisional.iCantMove = true;
 
-        }).add(flecs::PreUpdate);
+        });
 
-    world.system<Collisional, Bullet, sf::Sprite, Moving>()
+    auto updateBullets = world.system<Collisional, Bullet, sf::Sprite, Moving>()
         .each([&](
                 flecs::entity eBullet,
                 Collisional& collisional,
@@ -59,6 +64,7 @@ void initCollisionalSystems(flecs::world& world)
                 Moving& moving) {
             sf::Vector2f positionBullet = spriteBullet.getPosition();
             directionEnum directionSelf = moving.direction;
+            int damageBullet = bullet.damage;
             bool iOverScreen = false;
             if (positionBullet.x < 0.f && directionSelf == LEFT)
                 iOverScreen = true;
@@ -79,7 +85,7 @@ void initCollisionalSystems(flecs::world& world)
                         sf::Vector2f positionTarget = spriteTarget.getPosition();
                         sf::Vector2f directionForTarget = positionTarget - positionBullet;
                         float module = getModule(directionForTarget);
-                        if (module > 0 && module <= SIZE_TANK / 2)
+                        if (module > 0 && module <= SIZE_TANK / 2 && !eTarget.has<Fire>())
                             collisional.iCantMove = iSee(
                                     DIRECTIONS[directionSelf],
                                     positionBullet,
@@ -87,13 +93,38 @@ void initCollisionalSystems(flecs::world& world)
                                     0.50);
                         if (collisional.iCantMove)
                         {
-                            if (!eTarget.has<WallMetal>())
-                                eTarget.destruct();
+                            auto liveTarget = eTarget.get_mut<Live>();
+                            if (liveTarget)
+                                liveTarget->hp -= damageBullet;
+                            if (!bullet.isUser || !eTarget.has<Bullet>())
+                            {
+                                Fire fire = {};
+                                fire.indexTexture = 0;
+                                fire.preTimeUpdate = 0;
+                                sf::Sprite sprite;
+                                sprite.setPosition(positionTarget);
+                                world.entity().set<Fire>(fire).set<sf::Sprite>(sprite);
+                            }
                             eBullet.destruct();
                             collisional.iCantMove = false;
                         }
                     });
             }
+        });
 
-        }).add(flecs::PreUpdate);
+    auto destroyEntities = world.system<Live>()
+        .each([&](flecs::entity e, Live& live) {
+            if (live.hp == 0)
+            {
+                auto sprite = e.get<sf::Sprite>();
+                auto render = world.get_mut<Render>();
+                auto numPosition = getNumPosition(sprite->getPosition());
+                render->busyPositionScreen[numPosition] = false;
+                e.destruct();
+            }
+        });
+
+    updateICantMove.add(flecs::PostLoad);
+    updateBullets.add(flecs::PostLoad);
+    destroyEntities.add(flecs::PreUpdate);
 }

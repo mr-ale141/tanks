@@ -9,15 +9,11 @@ singletons
         getRandomInt
 User
     nextTimeShoot
-    hp
 Enemy
     nextTimeShoot
-    hp
 EnemyAI
     nextTimeShoot
-    hp
 WallWood
-    hp
 WallMetal
 Fire
     indexTexture
@@ -27,6 +23,8 @@ Bullet
     damage
 Collisional
     iCantMove
+Live
+    hp
 Moving
     direction
     speed

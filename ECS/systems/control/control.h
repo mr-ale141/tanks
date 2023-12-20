@@ -5,7 +5,7 @@
 void initControlSystems(flecs::world& world)
 {
 
-    world.system<Render>()
+    auto controlCloseWindow = world.system<Render>()
             .term_at(1).singleton()
             .each([](Render& render) {
                 sf::Event event = {};
@@ -20,9 +20,9 @@ void initControlSystems(flecs::world& world)
                             break;
                     }
                 }
-            }).add(flecs::PreUpdate);
+            });
 
-    world.system<sf::Sprite, Moving, User>()
+    auto controlUser = world.system<sf::Sprite, Moving, User>()
             .each([&](flecs::iter& it, size_t index, sf::Sprite& spriteUser, Moving& moving, User& user) {
                 directionEnum oldDirection = moving.direction;
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
@@ -56,5 +56,8 @@ void initControlSystems(flecs::world& world)
                     fixPositionInRange(spriteUser);
                 }
 
-            }).add(flecs::PreUpdate);
+            });
+
+    controlCloseWindow.add(flecs::OnLoad);
+    controlUser.add(flecs::OnLoad);
 }

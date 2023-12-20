@@ -96,7 +96,7 @@ void initMovingSystems(flecs::world& world)
                 }
             });
 
-    auto updateWallWood = world.system<sf::Sprite, WallWood, Live, Render>()
+    auto updateWallWoodSprite = world.system<sf::Sprite, WallWood, Live, Render>()
             .term_at(4).singleton()
             .each([](flecs::entity e, sf::Sprite& sprite, WallWood, Live& live, Render& render) {
                 if (live.hp == 2)
@@ -124,6 +124,6 @@ void initMovingSystems(flecs::world& world)
     updateDirections.add(flecs::OnUpdate);
     updatePositions.add(flecs::OnUpdate);
     updateFire.add(flecs::OnUpdate);
-    updateWallWood.add(flecs::OnUpdate);
+    updateWallWoodSprite.add(flecs::OnUpdate);
     updateBusyPosition.add(flecs::OnValidate);
 }

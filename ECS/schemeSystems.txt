@@ -1,27 +1,29 @@
 OnLoad
-+   controlCloseWindow
-+   controlUser
+    controlCloseWindow
+    controlUser
 PostLoad
-+   updateICantMove
-        createBullets
-+   updateBullets
-        updateLive
+    updateICantMove
+        checkBarriers
+            createBullets
+    updateBullets
+        updateLivesEntities
+        checkDoubleBullets
+            createFire
         destroyBullets
-        createFire
 PreUpdate
-+   destroyEntities
+    destroyEntities
 OnUpdate
-+   updateSpeeds
-+   updateDirections
-+   updatePositions
-+   updateFire
+    updateSpeeds
+    updateDirections
+    updatePositions
+    updateFire
         destroyFire
-+   updateWallWood
+    updateWallWoodSprite
 OnValidate
-+   updateBusyPositions
+    updateBusyPositions
 PostUpdate
-+   clearDisplay
+    clearDisplay
 PreStore
-+   drawDisplay
+    drawDisplay
 OnStore
-+   showDisplay
+    showDisplay

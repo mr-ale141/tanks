@@ -63,16 +63,16 @@ void initCollisionalSystems(flecs::world& world)
                 sf::Sprite& spriteBullet,
                 Moving& moving) {
             sf::Vector2f positionBullet = spriteBullet.getPosition();
-            directionEnum directionSelf = moving.direction;
+            directionEnum directionBullet = moving.direction;
             int damageBullet = bullet.damage;
             bool iOverScreen = false;
-            if (positionBullet.x < 0.f && directionSelf == LEFT)
+            if (positionBullet.x < 0.f && directionBullet == LEFT)
                 iOverScreen = true;
-            else if (positionBullet.x > WINDOW_WIDTH && directionSelf == RIGHT)
+            else if (positionBullet.x > WINDOW_WIDTH && directionBullet == RIGHT)
                 iOverScreen = true;
-            else if (positionBullet.y < 0.f && directionSelf == UP)
+            else if (positionBullet.y < 0.f && directionBullet == UP)
                 iOverScreen = true;
-            else if (positionBullet.y > WINDOW_HEIGHT && directionSelf == DOWN)
+            else if (positionBullet.y > WINDOW_HEIGHT && directionBullet == DOWN)
                 iOverScreen = true;
 
             if (iOverScreen)
@@ -87,7 +87,7 @@ void initCollisionalSystems(flecs::world& world)
                         float module = getModule(directionForTarget);
                         if (module > 0 && module <= SIZE_TANK / 2 && !eTarget.has<Fire>())
                             collisional.iCantMove = iSee(
-                                    DIRECTIONS[directionSelf],
+                                    DIRECTIONS[directionBullet],
                                     positionBullet,
                                     positionTarget,
                                     0.50);

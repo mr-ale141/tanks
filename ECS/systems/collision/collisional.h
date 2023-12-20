@@ -17,6 +17,7 @@ void initCollisionalSystems(flecs::world& world)
 
             world.filter_builder<sf::Sprite>()
                 .term<Bullet>().oper(flecs::Not)
+                .term<Fire>().oper(flecs::Not)
                 .build()
                 .each([&](flecs::entity eTarget, const sf::Sprite& spriteTarget) {
                     sf::Vector2f positionTarget = spriteTarget.getPosition();
@@ -28,12 +29,12 @@ void initCollisionalSystems(flecs::world& world)
                                 positionSelf,
                                 positionTarget,
                                 0.70);
-                    if (module != 0 && eTarget.has<User>() && iSee(
+                    if (module != 0 && (eTarget.has<User>() || eTarget.has<WallWood>()) && iSee(
                             DIRECTIONS[directionSelf],
                             positionSelf,
                             positionTarget))
                     {
-                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(spriteTarget.getPosition())))
+                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(positionTarget)))
                         {
                             if (it.entity(index).has<Enemy>())
                                 shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));
@@ -113,8 +114,9 @@ void initCollisionalSystems(flecs::world& world)
         });
 
     auto destroyEntities = world.system<Live>()
+        .term<WallMetal>().oper(flecs::Not)
         .each([&](flecs::entity e, Live& live) {
-            if (live.hp == 0)
+            if (live.hp <= 0)
             {
                 auto sprite = e.get<sf::Sprite>();
                 auto render = world.get_mut<Render>();

@@ -3,21 +3,21 @@ OnLoad
     controlUser
 PostLoad
     updateICantMove
+    updateDamage
     createBullets
     createFire
 PreUpdate
-    updateDamage
+    destroyEntities
+    destroyFire
+    destroyBullets
 OnUpdate
     updateSpeeds
     updateDirections
     updatePositions
     updateFire
 OnValidate
-    destroyEntities
-    destroyBullets
-    destroyFire
-PostUpdate
     updateBusyPositions
+PostUpdate
     clearDisplay
 PreStore
     drawDisplay

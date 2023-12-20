@@ -17,7 +17,11 @@ EnemyAI
     nextTimeShoot
     hp
 WallWood
+    hp
 WallMetal
+Fire
+    indexTexture
+    preTimeUpdate
 Bullet
     isUser
     damage

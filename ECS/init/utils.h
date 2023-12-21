@@ -82,10 +82,14 @@ unsigned getNumPosition(sf::Vector2f position)
     return numPosition;
 }
 
-bool checkBarriers(const Render* render, directionEnum directionEnemy, unsigned numPositionEnemy, unsigned numPositionUser)
+bool checkBarriers(const Render* render, directionEnum directionEnemy, unsigned numPositionEnemy, unsigned numPositionTarget, bool isUserTarget)
 {
     unsigned checkNum = numPositionEnemy;
+    int countFreeBlock = 0;
     do {
+        countFreeBlock++;
+        if (!isUserTarget && countFreeBlock > COUNT_FREE_BLOCKS_BEFORE_FIRE)
+            return false;
         switch (directionEnemy) {
             case UP:
                 checkNum -= COLUMN_COUNT;
@@ -103,7 +107,7 @@ bool checkBarriers(const Render* render, directionEnum directionEnemy, unsigned 
         if (checkNum < 0 || checkNum > MAX_POSITION_IN_SCREEN)
             return false;
     } while (!render->busyPositionScreen[checkNum]);
-    return checkNum == numPositionUser;
+    return checkNum == numPositionTarget;
 }
 
 bool iSee(sf::Vector2f directionSelf, sf::Vector2f posSelf, sf::Vector2f posTarget, float sector = SECTOR_VIEW)
@@ -264,4 +268,189 @@ void shootEnemyAI(flecs::iter& it, size_t index, sf::Sprite& spriteEnemyAI, Movi
                 .set<Moving>(movingBullet)
                 .set<Collisional>(collisionalBullet);
     }
+}
+
+class Node
+{
+public:
+    explicit Node(unsigned positionInScreen)
+    {
+        numPosition = positionInScreen;
+        before = 0;
+        after = 0;
+        sum = 0;
+        parent = nullptr;
+        isInQueue = false;
+        directionForThis = UP;
+    }
+    bool operator<(const Node& right) const
+    {
+        return sum > right.sum;
+    }
+    bool operator>(const Node& right) const
+    {
+        return sum < right.sum;
+    }
+    bool operator==(const Node& right) const
+    {
+        return sum == right.sum;
+    }
+    bool operator>=(const Node& right) const
+    {
+        return sum <= right.sum;
+    }
+    bool operator<=(const Node& right) const
+    {
+        return sum >= right.sum;
+    }
+    bool operator!=(const Node& right) const
+    {
+        return sum != right.sum;
+    }
+    void updateSum()
+    {
+        sum = before + after;
+    }
+    unsigned numPosition;
+    int before;
+    int after;
+    int sum;
+    bool isInQueue;
+    Node* parent;
+    directionEnum directionForThis;
+};
+
+directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionUser)
+{
+    auto startNode = Node(numPositionSelf);
+    auto endNode = Node(numPositionUser);
+    sf::Vector2f userPosition = getPositionCenter(numPositionUser);
+    auto zeroNode = Node(MAX_POSITION_IN_SCREEN);
+    std::set<unsigned> closedSet;
+    Node* openSet[MAX_POSITION_IN_SCREEN];
+    for (int i = 0; i < MAX_POSITION_IN_SCREEN; i++)
+        openSet[i] = nullptr;
+    openSet[startNode.numPosition] = &startNode;
+
+    std::priority_queue<Node> queue;
+    queue.push(startNode);
+    startNode.isInQueue = true;
+
+    directionEnum direction = UP;
+    while (!queue.empty())
+    {
+        auto node = &queue.top();
+        unsigned currentNum = node->numPosition;
+        auto currentNode = openSet[currentNum];
+
+        if (currentNode->numPosition == endNode.numPosition)
+        {
+            while (currentNode)
+            {
+                direction = currentNode->directionForThis;
+//                int beforeNum = int(currentNode->numPosition);
+                currentNode = currentNode->parent;
+//                int currentNum = int(currentNode->numPosition);
+//                int delta = currentNum - beforeNum;
+//                switch (delta) {
+//                    case int(COLUMN_COUNT):
+//                        direction = UP;
+//                        break;
+//                    case -1:
+//                        direction = RIGHT;
+//                        break;
+//                    case -int(COLUMN_COUNT):
+//                        direction = DOWN;
+//                        break;
+//                    case 1:
+//                        direction = LEFT;
+//                        break;
+//                    default:
+//                        std::cout << "Error find path!!!\n";
+//                        break;
+//                }
+
+            }
+            return direction;
+        }
+
+        closedSet.insert(currentNode->numPosition);
+
+        unsigned neighbors[4] = {MAX_POSITION_IN_SCREEN, MAX_POSITION_IN_SCREEN, MAX_POSITION_IN_SCREEN, MAX_POSITION_IN_SCREEN};
+        unsigned neighbor = MAX_POSITION_IN_SCREEN;
+
+        if (currentNum > COLUMN_COUNT)
+        {
+            neighbor = currentNum - COLUMN_COUNT;
+            if (!render.busyPositionScreen[neighbor])
+            {
+                neighbors[UP] = neighbor;
+            }
+        }
+        if (currentNum % COLUMN_COUNT != COLUMN_COUNT - 1)
+        {
+            neighbor = currentNum + 1;
+            if (!render.busyPositionScreen[neighbor])
+                neighbors[RIGHT] = neighbor;
+        }
+        if (currentNum < MAX_POSITION_IN_SCREEN - COLUMN_COUNT)
+        {
+            neighbor = currentNum + COLUMN_COUNT;
+            if (!render.busyPositionScreen[neighbor])
+                neighbors[DOWN] = neighbor;
+        }
+        if (currentNum % COLUMN_COUNT != 0)
+        {
+            neighbor = currentNum - 1;
+            if (!render.busyPositionScreen[neighbor])
+                neighbors[LEFT] = neighbor;
+        }
+
+        int newBefore = currentNode->before + 1;
+        for (int i = 0; i < 4; i++)
+        {
+            currentNum = neighbors[i];
+            if (currentNum == MAX_POSITION_IN_SCREEN || closedSet.count(currentNum))
+                continue;
+            Node* neighborNode = openSet[currentNum];
+            int newAfter = 0;
+            if (neighborNode)
+            {
+                if (neighborNode->isInQueue && newBefore < neighborNode->before)
+                {
+                    neighborNode->before = newBefore;
+                    sf::Vector2f currentPosition = getPositionCenter(currentNum);
+                    float module = getModule(userPosition - currentPosition);
+                    newAfter = int(module / SIZE_TANK);
+                    neighborNode->after = newAfter;
+                    neighborNode->updateSum();
+                    neighborNode->parent = openSet[currentNode->numPosition];
+                    neighborNode->directionForThis = directionEnum(i);
+                    queue.push(zeroNode);
+                    std::cout << queue.top().numPosition << std::endl;
+                    queue.pop();
+                    std::cout << queue.top().numPosition << std::endl;
+                }
+            }
+            else
+            {
+                auto newNode = Node(currentNum);
+                openSet[currentNum] = &newNode;
+                newNode.before = newBefore;
+                sf::Vector2f currentPosition = getPositionCenter(currentNum);
+                float module = getModule(userPosition - currentPosition);
+                newAfter = int(module / SIZE_TANK);
+                newNode.after = newAfter;
+                newNode.updateSum();
+                newNode.parent = openSet[currentNode->numPosition];
+                newNode.directionForThis = directionEnum(i);
+                newNode.isInQueue = true;
+                queue.push(newNode);
+            }
+        }
+        currentNode->isInQueue = false;
+        queue.pop();
+    }
+
+    return directionEnum(rand.getRandomInt(0, 3));
 }

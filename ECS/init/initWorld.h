@@ -25,7 +25,7 @@ void createUser(flecs::world& world)
     sprite.setPosition(getPositionCenter(NUM_POSITION_USER));
     setDirection(sprite, moving.direction);
 
-    world.entity().set<User>(user).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
+    world.entity("User").set<User>(user).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
 }
 
 void createEnemies(flecs::world& world)

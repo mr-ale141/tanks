@@ -4,12 +4,14 @@
 #include <iostream>
 #include <string>
 #include <climits>
+#include <set>
+#include <queue>
 #include "flecs.h"
 
 constexpr unsigned MAX_ENEMY = 15;
 constexpr unsigned MAX_ENEMY_AI = 10;
-constexpr unsigned MAX_WALL_WOOD = 100;
-constexpr unsigned MAX_WALL_METAL = 50;
+constexpr unsigned MAX_WALL_WOOD = 50;
+constexpr unsigned MAX_WALL_METAL = 25;
 
 const float SECTOR_VIEW = 0.999;
 const float TIME_WAITING = 0.f;
@@ -26,24 +28,25 @@ constexpr unsigned NUM_POSITION_USER = (ROW_COUNT - 1) * COLUMN_COUNT + COLUMN_C
 const float SPEED_USER = 80.f;
 const float SPEED_ENEMY_AI = 20.f;
 const float SPEED_ENEMY = 40.f;
-const sf::Vector2i RANGE_RAND_DIRECTION = {1, 4};
+const sf::Vector2i RANGE_RAND_DIRECTION = {1, 10};
 
 constexpr float SPEED_BULLET = 300.f;
 
 const float SHOOT_SPEED_USER = 2.f;
 const float SHOOT_SPEED_ENEMY = 1.f / 3.f;
 const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
-const int HP_USER = 100;
+const int HP_USER = 3;
 const int HP_ENEMY = 1;
 const int HP_ENEMY_AI = 2;
 
 const int COUNT_COLUMN_TEXTURE_FIRE = 16;
 const int SIZE_TEXTURE_FIRE = 64;
 const float STEP_UPDATE_FIRE = 0.05;
+const int COUNT_FREE_BLOCKS_BEFORE_FIRE = 3;
 
-constexpr int USER_DAMAGE = 10;
+constexpr int USER_DAMAGE = 1;
 constexpr int ENEMY_DAMAGE = 1;
-constexpr int ENEMY_AI_DAMAGE = 2;
+constexpr int ENEMY_AI_DAMAGE = 1;
 
 const sf::Vector2f DIRECTIONS[4] = {
         { 0.f, -1.f },

@@ -34,7 +34,7 @@ void initCollisionalSystems(flecs::world& world)
                             positionSelf,
                             positionTarget))
                     {
-                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(positionTarget)))
+                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(positionTarget), eTarget.has<User>()))
                         {
                             if (it.entity(index).has<Enemy>())
                                 shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));

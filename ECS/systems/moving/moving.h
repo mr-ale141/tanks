@@ -30,9 +30,11 @@ void initMovingSystems(flecs::world& world)
             });
 
     auto updateDirections = world.system<sf::Sprite, Moving, Collisional, Render, Rand>()
+            .term<User>().oper(flecs::Not)
+            .term<Bullet>().oper(flecs::Not)
             .term_at(4).singleton()
             .term_at(5).singleton()
-            .each([](
+            .each([&world](
                     flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
@@ -42,13 +44,10 @@ void initMovingSystems(flecs::world& world)
 
                 float currentTime = render.clock.getElapsedTime().asSeconds();
 
-                float speed;
-                if (e.has<Enemy>())
+                float speed = 0;
+                if (e.has<Enemy>() && currentTime >= moving.nextTimeDirection)
+                {
                     speed = SPEED_ENEMY;
-                else if (e.has<EnemyAI>())
-                    speed = SPEED_ENEMY_AI;
-
-                if (!e.has<User>() && currentTime >= moving.nextTimeDirection) {
                     moving.direction = directionEnum(rand.getRandomInt(0, 3));
                     moving.nextTimeDirection =
                             currentTime +
@@ -59,6 +58,19 @@ void initMovingSystems(flecs::world& world)
                             speed;
                     setDirection(sprite, moving.direction);
                     fixPositionInRange(sprite);
+                }
+                else if (e.has<EnemyAI>() && currentTime >= moving.nextTimeDirection)
+                {
+                    speed = SPEED_ENEMY_AI;
+                    auto movingUser = world.lookup("User").get<Moving>();
+                    moving.direction = getDirectionAI(rand, render, moving.numPositionScreen, movingUser->numPositionScreen);
+                    setDirection(sprite, moving.direction);
+                    fixPositionInRange(sprite);
+                    moving.nextTimeDirection =
+                            currentTime +
+                            float(SIZE_TANK) *
+                            1.f /
+                            speed;
                 }
             });
 

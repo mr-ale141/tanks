@@ -36,7 +36,7 @@ constexpr float SPEED_BULLET = 300.f;
 const float SHOOT_SPEED_USER = 2.f;
 const float SHOOT_SPEED_ENEMY = 1.f / 3.f;
 const float SHOOT_SPEED_ENEMY_AI = 1.f / 4.f;
-const int HP_USER = 3;
+const int HP_USER = 100;
 const int HP_ENEMY = 1;
 const int HP_ENEMY_AI = 2;
 

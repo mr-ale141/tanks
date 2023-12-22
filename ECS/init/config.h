@@ -6,6 +6,7 @@
 #include <climits>
 #include <set>
 #include <queue>
+#include <memory>
 #include "flecs.h"
 
 constexpr unsigned MAX_ENEMY = 15;

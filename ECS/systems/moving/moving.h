@@ -6,7 +6,7 @@ void initMovingSystems(flecs::world& world)
     auto updateSpeeds = world.system<sf::Sprite, Moving, Collisional, Render>()
             .term<Bullet>().oper(flecs::Not)
             .term_at(4).singleton()
-            .each([](
+            .each([&](
                     flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
@@ -34,7 +34,7 @@ void initMovingSystems(flecs::world& world)
             .term<Bullet>().oper(flecs::Not)
             .term_at(4).singleton()
             .term_at(5).singleton()
-            .each([&world](
+            .each([&](
                     flecs::entity e,
                     sf::Sprite& sprite,
                     Moving& moving,
@@ -43,34 +43,29 @@ void initMovingSystems(flecs::world& world)
                     Rand& rand) {
 
                 float currentTime = render.clock.getElapsedTime().asSeconds();
-
-                float speed = 0;
+                auto numPositionUser = world.lookup("User").get<Moving>()->numPositionScreen;
                 if (e.has<Enemy>() && currentTime >= moving.nextTimeDirection)
                 {
-                    speed = SPEED_ENEMY;
-                    moving.direction = directionEnum(rand.getRandomInt(0, 3));
+                    auto id = e.id();
+                    moving.direction = getDirectionEnemy(rand, render, moving.numPositionScreen, numPositionUser, id);
                     moving.nextTimeDirection =
                             currentTime +
                             float(SIZE_TANK) *
-                            float(rand.getRandomInt(
-                                    RANGE_RAND_DIRECTION.x,
-                                    RANGE_RAND_DIRECTION.y)) /
-                            speed;
+                            1.f /
+                            SPEED_ENEMY;
                     setDirection(sprite, moving.direction);
                     fixPositionInRange(sprite);
                 }
                 else if (e.has<EnemyAI>() && currentTime >= moving.nextTimeDirection)
                 {
-                    speed = SPEED_ENEMY_AI;
-                    auto movingUser = world.lookup("User").get<Moving>();
-                    moving.direction = getDirectionAI(rand, render, moving.numPositionScreen, movingUser->numPositionScreen);
-                    setDirection(sprite, moving.direction);
-                    fixPositionInRange(sprite);
+                    moving.direction = getDirectionEnemyAI(rand, render, moving.numPositionScreen, numPositionUser);
                     moving.nextTimeDirection =
                             currentTime +
                             float(SIZE_TANK) *
                             1.f /
-                            speed;
+                            SPEED_ENEMY_AI;
+                    setDirection(sprite, moving.direction);
+                    fixPositionInRange(sprite);
                 }
             });
 

@@ -5,6 +5,10 @@ struct User {
     float nextTimeShoot;
 };
 
+struct BaseUser {};
+
+struct BaseEnemy {};
+
 struct Enemy {
     float nextTimeShoot;
 };
@@ -53,6 +57,8 @@ struct Render {
     sf::Texture wallWoodTexture_0;
     sf::Texture wallWoodTexture_1;
     sf::Texture wallWoodTexture_2;
+    sf::Texture baseUser;
+    sf::Texture baseEnemy;
     sf::Texture fire[COUNT_COLUMN_TEXTURE_FIRE];
     sf::RenderWindow* window;
     bool busyPositionScreen[MAX_POSITION_IN_SCREEN];

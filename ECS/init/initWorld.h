@@ -28,6 +28,34 @@ void createUser(flecs::world& world)
     world.entity("User").set<User>(user).set<sf::Sprite>(sprite).set<Moving>(moving).set<Collisional>(collisional).set<Live>(live);
 }
 
+void createBaseUser(flecs::world& world)
+{
+    sf::Sprite sprite;
+    Live live = {};
+    live.hp = HP_BASE;
+    auto render = world.get_mut<Render>();
+    render->busyPositionScreen[NUM_POSITION_BASE_USER] = true;
+    sprite.setTexture(render->baseUser);
+    setOriginCenter(sprite);
+    sprite.setPosition(getPositionCenter(NUM_POSITION_BASE_USER));
+
+    world.entity().add<BaseUser>().set<sf::Sprite>(sprite).set<Live>(live);
+}
+
+void createBaseEnemy(flecs::world& world)
+{
+    sf::Sprite sprite;
+    Live live = {};
+    live.hp = HP_BASE;
+    auto render = world.get_mut<Render>();
+    render->busyPositionScreen[NUM_POSITION_BASE_ENEMY] = true;
+    sprite.setTexture(render->baseEnemy);
+    setOriginCenter(sprite);
+    sprite.setPosition(getPositionCenter(NUM_POSITION_BASE_ENEMY));
+
+    world.entity().add<BaseEnemy>().set<sf::Sprite>(sprite).set<Live>(live);
+}
+
 void createEnemies(flecs::world& world)
 {
     auto render = world.get_mut<Render>();
@@ -103,17 +131,13 @@ void createWallWoods(flecs::world& world)
     auto render = world.get_mut<Render>();
     auto rand = world.get_mut<Rand>();
     const int HP_WALL_WOOD = 3;
-    for (int i = 0; i < MAX_WALL_WOOD; i++)
+    for (int i = 0; i < MAX_POSITION_IN_SCREEN; i++)
     {
         Live live = {};
         live.hp = HP_WALL_WOOD;
         sf::Sprite sprite;
         sprite.setTexture(render->wallWoodTexture_0);
-        unsigned numPosition = getFreePosition(
-                *rand,
-                *render,
-                0,
-                MAX_POSITION_IN_SCREEN - 1);
+        unsigned numPosition = wallWoodMaps[LEVEL][i];
         render->busyPositionScreen[numPosition] = true;
         sf::Vector2f position = getPositionCenter(numPosition);
         sprite.setPosition(position);
@@ -126,15 +150,11 @@ void createWallMetal(flecs::world& world)
 {
     auto render = world.get_mut<Render>();
     auto rand = world.get_mut<Rand>();
-    for (int i = 0; i < MAX_WALL_METAL; i++)
+    for (int i = 0; i < MAX_POSITION_IN_SCREEN; i++)
     {
         sf::Sprite sprite;
         sprite.setTexture(render->wallMetalTexture);
-        unsigned numPosition = getFreePosition(
-                *rand,
-                *render,
-                0,
-                MAX_POSITION_IN_SCREEN - 1);
+        unsigned numPosition = wallMetalMaps[LEVEL][i];
         render->busyPositionScreen[numPosition] = true;
         sf::Vector2f position = getPositionCenter(numPosition);
         sprite.setPosition(position);
@@ -145,11 +165,13 @@ void createWallMetal(flecs::world& world)
 
 void createEntities(flecs::world& world)
 {
-    createUser(world);
-    createEnemies(world);
-    createEnemiesAI(world);
     createWallWoods(world);
     createWallMetal(world);
+    createUser(world);
+    createBaseUser(world);
+    createBaseEnemy(world);
+    createEnemies(world);
+    createEnemiesAI(world);
 }
 
 void initRender(flecs::world& world) {
@@ -209,6 +231,18 @@ void initRender(flecs::world& world) {
         exit(1);
     }
 
+    if (!render.baseUser.loadFromFile("../sprites/base.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/base.png\"!!!\n";
+        exit(1);
+    }
+
+    if (!render.baseEnemy.loadFromFile("../sprites/baseEnemy.png"))
+    {
+        std::cout << "Error: I can't read texture \"../sprites/baseEnemy.png\"!!!\n";
+        exit(1);
+    }
+
     for (int i = 0; i < COUNT_COLUMN_TEXTURE_FIRE; i++)
     {
         sf::IntRect positionInTexture = {
@@ -253,6 +287,21 @@ void initSingletons(flecs::world& world)
 
 void initWorld(flecs::world& world)
 {
+    MAX_ENEMY += LEVEL * 2;
+    MAX_ENEMY_AI += LEVEL * 1;
+    MAX_WALL_WOOD -= LEVEL * 5;
+    MAX_WALL_METAL -= LEVEL * 2;
+
+    SPEED_USER += float(LEVEL) * 5.f;
+    SPEED_ENEMY_AI += float(LEVEL) * 3.f;
+    SPEED_ENEMY += float(LEVEL) * 4.f;
+
+    SHOOT_SPEED_USER += float(LEVEL);
+    SHOOT_SPEED_ENEMY += float(LEVEL) / 2.f;
+    SHOOT_SPEED_ENEMY_AI += float(LEVEL) / 3.f;
+
+    SPEED_BULLET += float(LEVEL) * 20;
+
     initSingletons(world);
     initRenderSystems(world);
     initMovingSystems(world);

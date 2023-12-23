@@ -84,6 +84,11 @@ unsigned getNumPosition(sf::Vector2f position)
 
 bool checkBarriers(const Render* render, directionEnum directionEnemy, unsigned numPositionEnemy, unsigned numPositionTarget, bool isUserTarget)
 {
+    for (int i = 0; i < COUNT_PROTECT_BASE; i++)
+    {
+        if (NUM_POSITIONS_PROTECT_BASE_ENEMY[i] == numPositionTarget)
+            return false;
+    }
     unsigned checkNum = numPositionEnemy;
     int countFreeBlock = 0;
     do {
@@ -303,7 +308,7 @@ struct CompareNodes {
     }
 };
 
-directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionUser)
+directionEnum getDirectionForTarget(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionTarget, bool& isOutOfReach)
 {
     std::shared_ptr<Node> openSet[MAX_POSITION_IN_SCREEN];
     for (int i = 0; i < MAX_POSITION_IN_SCREEN; i++)
@@ -311,7 +316,7 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
 
     openSet[numPositionSelf] = std::make_shared<Node>(numPositionSelf);
 
-    sf::Vector2f userPosition = getPositionCenter(numPositionUser);
+    sf::Vector2f userPosition = getPositionCenter(numPositionTarget);
 
     std::set<unsigned> closedSet;
 
@@ -329,7 +334,7 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
 
         unsigned currentNum = currentNode->numPosition;
 
-        if (currentNode->numPosition == numPositionUser)
+        if (currentNode->numPosition == numPositionTarget)
         {
             direction = currentNode->directionForThis;
             while (currentNode->parent)
@@ -337,6 +342,7 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
                 direction = currentNode->directionForThis;
                 currentNode = currentNode->parent;
             }
+            isOutOfReach = false;
             return direction;
         }
 
@@ -348,7 +354,7 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
         if (currentNum > COLUMN_COUNT)
         {
             neighbor = currentNum - COLUMN_COUNT;
-            if (neighbor == numPositionUser || !render.busyPositionScreen[neighbor])
+            if (neighbor == numPositionTarget || !render.busyPositionScreen[neighbor])
             {
                 neighbors[UP] = neighbor;
             }
@@ -356,19 +362,19 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
         if (currentNum % COLUMN_COUNT != COLUMN_COUNT - 1)
         {
             neighbor = currentNum + 1;
-            if (neighbor == numPositionUser || !render.busyPositionScreen[neighbor])
+            if (neighbor == numPositionTarget || !render.busyPositionScreen[neighbor])
                 neighbors[RIGHT] = neighbor;
         }
         if (currentNum < MAX_POSITION_IN_SCREEN - COLUMN_COUNT)
         {
             neighbor = currentNum + COLUMN_COUNT;
-            if (neighbor == numPositionUser || !render.busyPositionScreen[neighbor])
+            if (neighbor == numPositionTarget || !render.busyPositionScreen[neighbor])
                 neighbors[DOWN] = neighbor;
         }
         if (currentNum % COLUMN_COUNT != 0)
         {
             neighbor = currentNum - 1;
-            if (neighbor == numPositionUser || !render.busyPositionScreen[neighbor])
+            if (neighbor == numPositionTarget || !render.busyPositionScreen[neighbor])
                 neighbors[LEFT] = neighbor;
         }
 
@@ -419,6 +425,30 @@ directionEnum getDirectionAI(Rand& rand, Render& render, unsigned numPositionSel
             }
         }
     }
-
     return directionEnum(rand.getRandomInt(0, 3));
+}
+
+directionEnum getDirectionEnemyAI(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionUser)
+{
+    bool isOutOfReach = true;
+    directionEnum direction;
+    direction = getDirectionForTarget(rand, render, numPositionSelf, NUM_POSITION_BASE_USER, isOutOfReach);
+    if (isOutOfReach)
+        return getDirectionForTarget(rand, render, numPositionSelf, numPositionUser, isOutOfReach);
+    else
+        return direction;
+}
+
+directionEnum getDirectionEnemy(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionUser, uint64_t id)
+{
+    bool isOutOfReach = true;
+//    unsigned indexTarget = rand.getRandomInt(0, COUNT_PROTECT_BASE - 1);
+    unsigned indexTarget = id % COUNT_PROTECT_BASE;
+    unsigned  numPositionTarget = NUM_POSITIONS_PROTECT_BASE_USER[indexTarget];
+    directionEnum direction;
+    direction = getDirectionForTarget(rand, render, numPositionSelf, numPositionTarget, isOutOfReach);
+    if (isOutOfReach || !render.busyPositionScreen[numPositionTarget])
+        return getDirectionForTarget(rand, render, numPositionSelf, numPositionUser, isOutOfReach);
+    else
+        return direction;
 }

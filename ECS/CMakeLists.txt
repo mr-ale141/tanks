@@ -28,7 +28,10 @@ add_executable(
         systems/render/render.h
         init/utils.h
         init/components.h
-        init/config.h)
+        init/config.h
+        menu/menuSistems.h
+        menu/menuComponents.h
+        menu/initMenu.h)
 
 target_link_libraries(${PROJECT_NAME} flecs::flecs_static)
 target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)

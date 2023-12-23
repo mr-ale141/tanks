@@ -29,12 +29,17 @@ void initCollisionalSystems(flecs::world& world)
                                 positionSelf,
                                 positionTarget,
                                 0.70);
-                    if (module != 0 && (eTarget.has<User>() || eTarget.has<WallWood>()) && iSee(
+                    if (module != 0 && (eTarget.has<User>() || eTarget.has<WallWood>() || eTarget.has<BaseUser>()) && iSee(
                             DIRECTIONS[directionSelf],
                             positionSelf,
                             positionTarget))
                     {
-                        if (checkBarriers(world.get<Render>(), directionSelf, moving.numPositionScreen, getNumPosition(positionTarget), eTarget.has<User>()))
+                        if (checkBarriers(
+                                world.get<Render>(),
+                                directionSelf,
+                                moving.numPositionScreen,
+                                getNumPosition(positionTarget),
+                                eTarget.has<User>() || eTarget.has<BaseUser>()))
                         {
                             if (it.entity(index).has<Enemy>())
                                 shootEnemy(it, index, spriteSelf, moving, *(it.entity(index).get_mut<Enemy>()));
@@ -86,7 +91,7 @@ void initCollisionalSystems(flecs::world& world)
                         sf::Vector2f positionTarget = spriteTarget.getPosition();
                         sf::Vector2f directionForTarget = positionTarget - positionBullet;
                         float module = getModule(directionForTarget);
-                        if (module > 0 && module <= SIZE_TANK / 2 && !eTarget.has<Fire>())
+                        if (module > float(SIZE_TANK) / 4 && module <= float(SIZE_TANK) / 2 && !eTarget.has<Fire>())
                             collisional.iCantMove = iSee(
                                     DIRECTIONS[directionBullet],
                                     positionBullet,

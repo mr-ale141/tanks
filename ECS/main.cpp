@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
     flecs::world world(argc, argv);
-
+    LEVEL = 0;
     initWorld(world);
 
 //    world.set<flecs::Rest>({});

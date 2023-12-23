@@ -442,7 +442,6 @@ directionEnum getDirectionEnemyAI(Rand& rand, Render& render, unsigned numPositi
 directionEnum getDirectionEnemy(Rand& rand, Render& render, unsigned numPositionSelf, unsigned numPositionUser, uint64_t id)
 {
     bool isOutOfReach = true;
-//    unsigned indexTarget = rand.getRandomInt(0, COUNT_PROTECT_BASE - 1);
     unsigned indexTarget = id % COUNT_PROTECT_BASE;
     unsigned  numPositionTarget = NUM_POSITIONS_PROTECT_BASE_USER[indexTarget];
     directionEnum direction;

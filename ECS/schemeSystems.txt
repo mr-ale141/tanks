@@ -12,6 +12,7 @@ PostLoad
         destroyBullets
 PreUpdate
     destroyEntities
+        checkGameOver
 OnUpdate
     updateSpeeds
     updateDirections

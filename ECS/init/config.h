@@ -11,6 +11,8 @@
 
 unsigned LEVEL = 0;
 
+bool isWin = false;
+
 unsigned MAX_ENEMY = 5;
 unsigned MAX_ENEMY_AI = 5;
 

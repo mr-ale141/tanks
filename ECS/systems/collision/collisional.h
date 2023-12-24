@@ -123,11 +123,22 @@ void initCollisionalSystems(flecs::world& world)
         .each([&](flecs::entity e, Live& live) {
             if (live.hp <= 0)
             {
-                auto sprite = e.get<sf::Sprite>();
                 auto render = world.get_mut<Render>();
+                auto sprite = e.get<sf::Sprite>();
                 auto numPosition = getNumPosition(sprite->getPosition());
                 render->busyPositionScreen[numPosition] = false;
-                e.destruct();
+                if (e.has<User>() || e.has<BaseUser>())
+                {
+                    isWin = false;
+                    render->window->close();
+                }
+                else if (e.has<BaseEnemy>())
+                {
+                    isWin = true;
+                    render->window->close();
+                }
+                else
+                    e.destruct();
             }
         });
 

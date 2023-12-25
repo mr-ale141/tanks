@@ -287,18 +287,18 @@ void initSingletons(flecs::world& world)
 
 void initWorld(flecs::world& world)
 {
-    MAX_ENEMY += LEVEL;
-    MAX_ENEMY_AI += LEVEL;
+    MAX_ENEMY = MAX_ENEMY_DEFAULT + LEVEL;
+    MAX_ENEMY_AI = MAX_ENEMY_AI_DEFAULT + LEVEL;
 
-    SPEED_USER += float(LEVEL) * 2.f;
-    SPEED_ENEMY_AI += float(LEVEL) * 2.f;
-    SPEED_ENEMY += float(LEVEL) * 2.f;
+    SPEED_USER = SPEED_USER_DEFAULT + float(LEVEL) * 2.f;
+    SPEED_ENEMY_AI = SPEED_ENEMY_AI_DEFAULT + float(LEVEL) * 2.f;
+    SPEED_ENEMY = SPEED_ENEMY_DEFAULT + float(LEVEL) * 2.f;
 
-    SHOOT_SPEED_USER += float(LEVEL) / 2.f;
-    SHOOT_SPEED_ENEMY += float(LEVEL) / 4.f;
-    SHOOT_SPEED_ENEMY_AI += float(LEVEL) / 9.f;
+    SHOOT_SPEED_USER = SHOOT_SPEED_USER_DEFAULT + float(LEVEL) / 2.f;
+    SHOOT_SPEED_ENEMY = SHOOT_SPEED_ENEMY_DEFAULT + float(LEVEL) / 4.f;
+    SHOOT_SPEED_ENEMY_AI = SHOOT_SPEED_ENEMY_AI_DEFAULT + float(LEVEL) / 9.f;
 
-    SPEED_BULLET += float(LEVEL) * 10;
+    SPEED_BULLET = SPEED_BULLET_DEFAULT + float(LEVEL) * 10;
 
     initSingletons(world);
     initRenderSystems(world);

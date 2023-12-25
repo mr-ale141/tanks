@@ -1,5 +1,5 @@
 #pragma ONCE
-#include "config.h"
+#include "../init/config.h"
 
 struct User {
     float nextTimeShoot;

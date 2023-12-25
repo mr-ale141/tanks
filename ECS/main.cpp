@@ -2,8 +2,9 @@
 
 #include "init/initWorld.h"
 
-void showGame(flecs::world& world)
+void showGame()
 {
+    flecs::world world;
     initWorld(world);
     auto render = world.get<Render>();
     while (render->window->isOpen()) {
@@ -11,11 +12,33 @@ void showGame(flecs::world& world)
     }
 }
 
-int main(int argc, char *argv[]) {
+int main() {
+    AnswerEnum answer;
+    Menu menu;
 
-    flecs::world world(argc, argv);
+    answer = menu.showMainMenu();
 
-    showGame(world);
+    while (answer != EXIT)
+    {
+        switch (answer) {
+            case START:
+                showGame();
+                if (isWin)
+                    answer = menu.showYouWin();
+                else
+                    answer = menu.showYouLost();
+                break;
+            case SET_LEVEL:
+                answer = menu.showSetLevel();
+                break;
+            case EXIT_TO_MENU:
+                answer = menu.showMainMenu();
+                break;
+            default:
+                std::cout << "Error answer!!\n";
+                break;
+        }
+    }
 }
 
 //    world.set<flecs::Rest>({});

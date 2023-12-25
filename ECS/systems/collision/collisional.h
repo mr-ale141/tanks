@@ -127,22 +127,40 @@ void initCollisionalSystems(flecs::world& world)
                 auto sprite = e.get<sf::Sprite>();
                 auto numPosition = getNumPosition(sprite->getPosition());
                 render->busyPositionScreen[numPosition] = false;
-                if (e.has<User>() || e.has<BaseUser>())
-                {
-                    isWin = false;
-                    render->window->close();
-                }
-                else if (e.has<BaseEnemy>())
-                {
-                    isWin = true;
-                    render->window->close();
-                }
-                else
-                    e.destruct();
+                e.destruct();
             }
         });
+
+    auto checkGameOver = world.system<Render>()
+            .term_at(1).singleton()
+            .each([&](Render& render) {
+                auto userIsLive = world.count<User>();
+                auto userBaseIsLive = world.count<BaseUser>();
+                auto enemyBaseIsLive = world.count<BaseEnemy>();
+                auto countEnemy = world.count<Enemy>();
+                auto countEnemyAI = world.count<EnemyAI>();
+                if ((countEnemy == 0 && countEnemyAI == 0) || enemyBaseIsLive == 0)
+                {
+                    auto fire = world.count<Fire>();
+                    if (fire == 0)
+                    {
+                        isWin = true;
+                        render.window->close();
+                    }
+                }
+                else if (userIsLive == 0 || userBaseIsLive == 0)
+                {
+                    auto fire = world.count<Fire>();
+                    if (fire == 0)
+                    {
+                        isWin = false;
+                        render.window->close();
+                    }
+                }
+            });
 
     updateICantMove.add(flecs::PostLoad);
     updateBullets.add(flecs::PostLoad);
     destroyEntities.add(flecs::PreUpdate);
+    checkGameOver.add(flecs::OnStore);
 }

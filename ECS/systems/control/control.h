@@ -47,6 +47,11 @@ void initControlSystems(flecs::world& world)
                     moving.speed = SPEED_USER;
                     moving.direction = DOWN;
                 }
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    isWin = false;
+                    world.get_mut<Render>()->window->close();
+                }
                 else
                     moving.speed = 0;
 

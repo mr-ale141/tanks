@@ -141,21 +141,21 @@ void initCollisionalSystems(flecs::world& world)
                 auto countEnemyAI = world.count<EnemyAI>();
                 if ((countEnemy == 0 && countEnemyAI == 0) || enemyBaseIsLive == 0)
                 {
-                    auto fire = world.count<Fire>();
-                    if (fire == 0)
-                    {
+//                    auto fire = world.count<Fire>();
+//                    if (fire == 0)
+//                    {
                         isWin = true;
                         render.window->close();
-                    }
+//                    }
                 }
                 else if (userIsLive == 0 || userBaseIsLive == 0)
                 {
-                    auto fire = world.count<Fire>();
-                    if (fire == 0)
-                    {
+//                    auto fire = world.count<Fire>();
+//                    if (fire == 0)
+//                    {
                         isWin = false;
                         render.window->close();
-                    }
+//                    }
                 }
             });
 

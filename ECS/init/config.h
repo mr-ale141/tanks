@@ -54,10 +54,10 @@ float SHOOT_SPEED_ENEMY = 1.f / 2.f;
 float SHOOT_SPEED_ENEMY_DEFAULT = 1.f / 2.f;
 float SHOOT_SPEED_ENEMY_AI = 1.f / 3.f;
 float SHOOT_SPEED_ENEMY_AI_DEFAULT = 1.f / 3.f;
-const int HP_USER = 100;
+const int HP_USER = 3;
 const int HP_BASE = 1;
-const int HP_ENEMY = 1;
-const int HP_ENEMY_AI = 2;
+const int HP_ENEMY = 2;
+const int HP_ENEMY_AI = 3;
 
 const int COUNT_COLUMN_TEXTURE_FIRE = 16;
 const int SIZE_TEXTURE_FIRE = 64;

@@ -127,7 +127,13 @@ void initCollisionalSystems(flecs::world& world)
                 auto sprite = e.get<sf::Sprite>();
                 auto numPosition = getNumPosition(sprite->getPosition());
                 render->busyPositionScreen[numPosition] = false;
-                e.destruct();
+                if (e.has<User>())
+                {
+                    isWin = false;
+                    world.get_mut<Render>()->window->close();
+                }
+                else
+                    e.destruct();
             }
         });
 
